@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { X, Volume2, ArrowRight, ArrowLeft, Flag, Timer, BookOpen, Check } from "lucide-react";
+import { Grid3x3, X, Volume2, ArrowRight, ArrowLeft, Flag, Timer, BookOpen, Check } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
 import { Card, Badge } from "@/components/ui/card.jsx";
 import { Faiscas, NumberTicker, ShimmerButton } from "@/components/efeitos/efeitos.jsx";
 import { Alternativas, Tabela, Figura, Passos, Macete, Veredito, LETRAS } from "./comum.jsx";
-import { Resumo } from "./Trilha.jsx";
+import { Resumo } from "./Tema.jsx";
+import { Dialog, DialogContent } from "@/components/ui/dialog.jsx";
+import { BotaoRascunho } from "@/components/Rascunho.jsx";
 
 function Relogio({ fim }) {
   const n = useNucleo(); const [, set] = useState(0);
@@ -18,7 +20,7 @@ function Relogio({ fim }) {
 
 export function Questao() {
   const n = useNucleo(); const sess = n.getSess(); const o = n.getS().obj;
-  const [resumo, setResumo] = useState(null);
+  const [resumo, setResumo] = useState(null); const [folha, setFolha] = useState(false);
   if (!sess) return null;
   const id = sess.ids[sess.i], q = n.Q(id), r = sess.resp[sess.i];
   const sim = sess.modo === "simulado", respondida = r && !sim;
@@ -30,7 +32,7 @@ export function Questao() {
       <div className="vidro sticky top-0 z-20 -mx-4 flex flex-col gap-2 border-b border-risco px-4 pb-2.5 pt-[calc(10px+env(safe-area-inset-top))] md:static md:mx-0 md:rounded-2xl md:border md:pt-2.5">
         <div className="flex items-center justify-between gap-2">
           <span className="flex min-w-0 items-center gap-2"><Button size="sm" variant="ghost" className="-ml-2" onClick={n.sairSessao} aria-label="Sair das questões"><X /> Sair</Button><span className="truncate text-sm font-bold text-apagado">{sess.titulo}</span></span>
-          <span className="flex items-center gap-3 text-sm"><span className="num">{sess.i + 1}/{sess.ids.length}</span>{sim && <Relogio fim={sess.fim} />}</span>
+          <span className="flex items-center gap-3 text-sm"><span className="num">{sess.i + 1}/{sess.ids.length}</span>{sess.fim && <Relogio fim={sess.fim} />}{sim && <Button size="sm" variant="secondary" onClick={() => setFolha(true)}><Grid3x3 /> Folha</Button>}</span>
         </div>
         <div className="flex gap-1" aria-hidden>{sess.ids.map((_, i) => { const x = sess.resp[i]; return <i key={i} className={cn("h-1.5 flex-1 rounded-full transition-colors", i === sess.i ? "bg-giz" : x ? (sim ? "bg-acc" : x.ok ? "bg-certo" : "bg-erro") : "bg-folha-3")} />; })}</div>
       </div>
@@ -39,7 +41,8 @@ export function Questao() {
         <Faiscas disparo={respondida && r.ok ? id : null} />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap gap-1.5"><Badge tone="acc">{n.matNome(o, mid)}</Badge><Badge>{q.tema}</Badge><Badge>{n.NIVEL_TXT[q.nivel]}</Badge>{q.alta && <Badge tone="marca">Alta chance</Badge>}</div>
-          {!sim && <Button size="icon" variant="ghost" aria-label="Ler a questão em voz alta" onClick={() => n.falar(`${q.enunciado}. ${q.alternativas.map((a, k) => `${LETRAS[k]}: ${a}`).join(". ")}`)}><Volume2 /></Button>}
+          <span className="flex items-center gap-1"><BotaoRascunho />
+          {!sim && <Button size="icon" variant="ghost" aria-label="Ler a questão em voz alta" onClick={() => n.falar(`${q.enunciado}. ${q.alternativas.map((a, k) => `${LETRAS[k]}: ${a}`).join(". ")}`)}><Volume2 /></Button>}</span>
         </div>
         <p className="text-lg leading-relaxed md:text-xl">{q.enunciado}</p>
         <Tabela q={q} /><Figura fg={q.figura} />
@@ -66,6 +69,7 @@ export function Questao() {
         </Card>)}
       {sim ? <Button variant="secondary" onClick={n.finalizar}>Entregar simulado agora</Button> : <Button variant="ghost" onClick={n.sairSessao}>Encerrar treino</Button>}
       <Resumo key={resumo || "x"} tema={resumo} onClose={() => setResumo(null)} />
+      {sim && <FolhaRespostas aberta={folha} fechar={() => setFolha(false)} />}
     </div>
   );
 }
@@ -121,5 +125,28 @@ export function Resultado() {
         </Card>)}
       <div className="grid gap-3 sm:grid-cols-2"><ShimmerButton onClick={() => n.ui.ir("treinar")}>Treinar mais</ShimmerButton><Button size="lg" variant="secondary" onClick={() => n.ui.ir("painel")}>Voltar ao painel</Button></div>
     </div>
+  );
+}
+
+/* Cartão-resposta como o da prova: marque direto aqui ou toque no número para ir até a questão */
+function FolhaRespostas({ aberta, fechar }) {
+  const n = useNucleo(); const sess = n.getSess();
+  const feitas = Object.keys(sess.resp).length;
+  return (
+    <Dialog open={aberta} onOpenChange={(v) => !v && fechar()}>
+      <DialogContent title="Folha de respostas">
+        <p className="mb-3 text-sm text-apagado"><span className="num">{feitas}</span> de <span className="num">{sess.ids.length}</span> marcadas. Toque no número para abrir a questão, ou na letra para marcar direto, como no cartão da prova.</p>
+        <ol className="grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+          {sess.ids.map((id, i) => { const q = n.Q(id), r = sess.resp[i]; return (
+            <li key={i} className={cn("flex items-center gap-2 rounded-xl px-1.5 py-1", i === sess.i && "bg-folha-2")}>
+              <button type="button" onClick={() => { n.irPara(i); fechar(); }} className="num w-9 rounded-lg py-1 text-right font-bold hover:bg-folha-3" aria-label={`Ir para a questão ${i + 1}`}>{String(i + 1).padStart(2, "0")}</button>
+              <span className="flex gap-1.5">{q.alternativas.map((_, k) => (
+                <button key={k} type="button" aria-label={`Questão ${i + 1}, marcar ${LETRAS[k]}`} aria-pressed={r?.esc === k} onClick={() => n.responderEm(i, k)}
+                  className={cn("mao grid size-8 place-items-center rounded-full border-2 text-sm font-bold", r?.esc === k ? "border-giz bg-giz text-lousa" : "border-risco-2 text-apagado hover:border-giz")}>{LETRAS[k]}</button>))}</span>
+            </li>); })}
+        </ol>
+        <Button className="mt-4 w-full" onClick={() => { fechar(); n.finalizar(); }}>Entregar prova</Button>
+      </DialogContent>
+    </Dialog>
   );
 }

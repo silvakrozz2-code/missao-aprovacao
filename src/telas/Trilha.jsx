@@ -7,33 +7,10 @@ import { Button } from "@/components/ui/button.jsx";
 import { Badge } from "@/components/ui/card.jsx";
 import { Dialog, DialogContent } from "@/components/ui/dialog.jsx";
 import { IconeMat } from "@/icones.jsx";
-import { Cabeca, Macete } from "./comum.jsx";
+import { Cabeca } from "./comum.jsx";
+import { Resumo } from "./Tema.jsx";
 
-export function Resumo({ tema, onClose }) {
-  const n = useNucleo(); const o = n.getS().obj;
-  const r = tema ? n.resumoDe(o, tema) || Object.values(n.OBJS).map((x) => x.resumos[tema]).find(Boolean) : null;
-  const temQ = tema && (n.BANCO[o].some((q) => q.tema === tema) || n.genDoObj[o].some((g) => g.tema === tema));
-  const [nota, setNota] = useState(() => (tema && n.P().notas[tema]) || "");
-  return (
-    <Dialog open={!!r} onOpenChange={(v) => !v && onClose()}>
-      {r && <DialogContent title={tema}>
-        <div className="flex flex-col gap-4">
-          <Macete rot="O que mais cai">{r.cai}</Macete>
-          <ol className="flex flex-col gap-2.5">{r.t.map((x, i) => <li key={i} className="grid grid-cols-[26px_minmax(0,1fr)] gap-2"><span className="mao text-lg text-marca">{i + 1}.</span><span>{x}</span></li>)}</ol>
-          <Macete>{r.macete}</Macete>
-          <div className="flex flex-wrap gap-2">
-            {r.lei && <Button asChild size="sm" variant="secondary"><a href={r.lei} target="_blank" rel="noopener">Texto oficial</a></Button>}
-            {(n.TRECHOS[tema] || []).map((x, i) => <Button key={i} asChild size="sm" variant="secondary"><a href={n.ytLink(x[0], x[1])} target="_blank" rel="noopener"><Play className="fill-current" /> {x[1]} · {x[3]}</a></Button>)}
-          </div>
-          <Button onClick={() => { onClose(); n.abrirAprender(tema); }}><GraduationCap /> Aprender passo a passo</Button>
-          <label className="flex flex-col gap-1.5 text-sm font-bold">Minhas anotações
-            <textarea value={nota} onChange={(e) => { setNota(e.target.value); n.P().notas[tema] = e.target.value; n.salvar(); }} placeholder="Escreva com suas palavras o que entendeu" className="min-h-24 rounded-xl border border-risco-2 bg-folha p-3 font-normal" /></label>
-          {temQ && <Button variant="secondary" onClick={() => { onClose(); n.iniciar(n.questoesDoTema(o, tema, 1, 10), tema); }}>Treinar 10 questões básicas</Button>}
-        </div>
-      </DialogContent>}
-    </Dialog>
-  );
-}
+export { Resumo };
 
 function Fase({ t, st, prox, ultimo, onResumo }) {
   const n = useNucleo(); const o = n.getS().obj; const s = n.statTema(o, t);
@@ -59,7 +36,7 @@ function Fase({ t, st, prox, ultimo, onResumo }) {
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant={prox ? "default" : "secondary"} onClick={() => n.abrirAprender(t)}><GraduationCap />Aprender</Button>
           {temQ && <Button size="sm" variant="secondary" onClick={() => n.iniciar(n.questoesDoTema(o, t, 0, 10), t)}><PencilLine />Treinar</Button>}
-          <Button size="sm" variant="ghost" onClick={() => onResumo(t)}><BookOpen />Resumo</Button>
+          <Button size="sm" variant="ghost" onClick={() => onResumo(t)}><BookOpen />Resumo e mapa</Button>
         </div>
       </div>
     </li>

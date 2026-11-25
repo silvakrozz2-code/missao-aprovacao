@@ -9,10 +9,12 @@ import Aprender from "./telas/Aprender.jsx";
 import { Questao, Resultado } from "./telas/Questao.jsx";
 import Treinar, { Cards } from "./telas/Treinar.jsx";
 import Mais from "./telas/Mais.jsx";
+import Rascunho from "./components/Rascunho.jsx";
+import { Ouvir, CadernoTela, Desafios } from "./telas/Extras.jsx";
 
-const ROTAS = ["painel", "trilha", "treinar", "revisar", "mais", "aprender", "questao", "resultado", "cards"];
+const ROTAS = ["painel", "trilha", "treinar", "revisar", "mais", "aprender", "questao", "resultado", "cards", "ouvir", "caderno", "desafios"];
 const NAV = [["painel", "Painel", House], ["trilha", "Trilha", Route], ["treinar", "Treinar", PencilLine], ["revisar", "Revisar", Layers], ["mais", "Mais", Ellipsis]];
-const PAI = { aprender: "trilha", questao: "treinar", resultado: "treinar", cards: "revisar" };
+const PAI = { aprender: "trilha", questao: "treinar", resultado: "treinar", cards: "revisar", ouvir: "revisar", caderno: "revisar", desafios: "painel" };
 
 function Toast() {
   const [msg, setMsg] = useState(null);
@@ -61,6 +63,9 @@ export default function App() {
   else if (rota === "questao" && n.getSess()) tela = <Questao />;
   else if (rota === "resultado" && n.getSess()) tela = <Resultado />;
   else if (rota === "cards" && n.getFc()) tela = <Cards />;
+  else if (rota === "ouvir") tela = <Ouvir />;
+  else if (rota === "caderno") tela = <CadernoTela />;
+  else if (rota === "desafios") tela = <Desafios />;
   else if (rota === "trilha" || rota === "aprender") tela = <Trilha />;
   else if (rota === "treinar" || rota === "questao" || rota === "resultado") tela = <Treinar />;
   else if (rota === "revisar" || rota === "cards") tela = <Treinar revisar />;
@@ -102,6 +107,7 @@ export default function App() {
               <Ic className={cn("relative size-5", atual === r && "text-acc")} /><span className="relative">{nome}</span></a>))}
         </nav>)}
       <Toast />
+      <Rascunho />
     </div>
   );
 }

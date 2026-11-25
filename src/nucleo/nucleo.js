@@ -215,6 +215,7 @@ function responder(idx) {
   const ok = idx === q.correta;
   sess.resp[sess.i] = { esc: idx, ok, ms };
   if (sess.modo === "simulado") { render(); return; }
+  if (!ok) (P().errEsc ||= {})[id] = idx;
   registrar(S.obj, id, q, ok, ms);
   render();
   if (!ok) ui.rolarExplicacao();
@@ -502,7 +503,7 @@ function acaoAprender(act, ds = {}) {
     case "ap-alt": {
       if (ap.etapa < 3 || ap.etapa > 5 || !ap.q || ap.q.resp) return true;
       const id = ap.fila[ap.qi], q = Q(id), k = +ds.k, ok = k === q.correta;
-      ap.q.resp = { esc: k, ok }; ap.total++; if (ok) ap.acertos++; ap.usados.add(id);
+      ap.q.resp = { esc: k, ok }; ap.total++; if (!ok) (P().errEsc ||= {})[id] = k; if (ok) ap.acertos++; ap.usados.add(id);
       registrar(S.obj, id, q, ok, Date.now() - ap.q.t0); render(); return true;
     }
     case "ap-q-prox": {
@@ -511,13 +512,69 @@ function acaoAprender(act, ds = {}) {
       if (!ap.q.resp.ok && ap.etapa < 5 && ap.extra < 2) { const n = parecida(id); if (n) { ap.fila.splice(ap.qi + 1, 0, n); ap.extra++; } }
       ap.qi++;
       if (ap.qi >= ap.fila.length) entrarEtapa(ap.etapa + 1);
-      else { ap.q = { resp: null, dica: false, t0: Date.now() }; render(); ui.topo(); }
+      else { ap.q = { resp: null, dica: false, t0: Date.now() }; ui.limparRascunho(); render(); ui.topo(); }
       return true;
     }
   }
   return false;
 }
 
+
+
+/* ───────────────────────── folha de respostas (modo prova) */
+function irPara(i) { if (!sess) return; sess.i = Math.max(0, Math.min(sess.ids.length - 1, i)); sess.qt0 = Date.now(); if (!S.cfg.manterRascunho) ui.limparRascunho(); render(); ui.topo(); }
+function responderEm(i, k) { if (!sess || sess.modo !== "simulado") return; const q = Q(sess.ids[i]); sess.resp[i] = { esc: k, ok: k === q.correta, ms: 0 }; render(); }
+
+/* ───────────────────────── modo 5 minutos: revisões vencidas + temas fracos, com relógio */
+function iniciarCinco() {
+  const o = S.obj, ids = [...revisoesVencidas(o)];
+  for (const f of temasFracos(o, 6)) { if (ids.length >= 6) break; ids.push(...questoesDoTema(o, f.tema, 0, 1)); }
+  iniciar([...new Set(ids)].slice(0, 6), "5 minutos", "treino", { fim: Date.now() + 5 * 60000 });
+}
+
+/* ───────────────────────── seus erros mais comuns por tema */
+function errosDoTema(o, tema, k = 4) {
+  const p = S.p[o];
+  return Object.entries(p.resp).filter(([id, r]) => r.tema === tema && r.e > 0 && Q(id))
+    .sort((a, b) => b[1].e - a[1].e || (b[1].last || 0) - (a[1].last || 0)).slice(0, k)
+    .map(([id, r]) => ({ id, q: Q(id), e: r.e, a: r.a, esc: p.errEsc?.[id], porque: p.porque[id] }));
+}
+
+/* ───────────────────────── marca-texto */
+function marcasTexto(tema) { return (P().marcaTexto ||= {})[tema] || []; }
+function marcarTexto(tema, i, txt) { txt = txt.trim(); if (txt.length < 2) return; const m = ((P().marcaTexto ||= {})[tema] ||= []); if (!m.some((x) => x.i === i && x.txt === txt)) m.push({ i, txt }); salvar(); render(); }
+function desmarcarTexto(tema, i, txt) { const m = (P().marcaTexto ||= {})[tema] || []; P().marcaTexto[tema] = m.filter((x) => !(x.i === i && x.txt === txt)); salvar(); render(); }
+
+/* ───────────────────────── desafios semanais e ranking pessoal */
+function inicioSemana(iso = hoje(), voltar = 0) { const d = new Date(iso + "T12:00:00"); const w = (d.getDay() + 6) % 7; d.setDate(d.getDate() - w - 7 * voltar); return isoDia(d); }
+function statsSemana(o, voltar = 0) {
+  const ini = inicioSemana(hoje(), voltar), fim = addDias(ini, 6);
+  let q = 0, a = 0, cards = 0, dias = 0;
+  for (let k = 0; k < 7; k++) { const x = S.dias[addDias(ini, k)]; if (!x) continue; q += x.obj?.[o] || 0; a += x.a || 0; cards += x.cards || 0; if (x.q || x.cards || x.pomo) dias++; }
+  const aulas = Object.values(S.p[o].aprendeu || {}).filter((x) => x.data >= ini && x.data <= fim).length;
+  const sims = S.p[o].sims.filter((x) => x.data >= ini && x.data <= fim).length;
+  return { ini, fim, q, a: Math.min(a, q), cards, dias, aulas, sims };
+}
+function desafiosDaSemana(o) {
+  const st = statsSemana(o), meta = Math.max(70, Math.round(S.cfg.meta * 5 / 10) * 10);
+  const lista = [
+    { id: "q", nome: `Resolver ${meta} questões`, v: st.q, meta },
+    { id: "dias", nome: "Estudar em 5 dias da semana", v: st.dias, meta: 5 },
+    { id: "aulas", nome: "Concluir 3 aulas no Aprender", v: st.aulas, meta: 3 },
+    { id: "cards", nome: "Revisar 60 flashcards", v: st.cards, meta: 60 },
+    { id: "sim", nome: "Fazer 1 simulado", v: st.sims, meta: 1 },
+  ];
+  const ganhos = ((S.desafios ||= {})[`${o}:${st.ini}`] ||= {});
+  let novo = false;
+  for (const d of lista) { d.feito = d.v >= d.meta; if (d.feito && !ganhos[d.id]) { ganhos[d.id] = hoje(); ganharXP(60); novo = d.nome; } }
+  if (novo) { salvar(); setTimeout(() => toast(`Desafio da semana cumprido: ${novo} (+60 XP)`), 300); }
+  return { st, lista };
+}
+function rankingSemanas(o, n = 8) {
+  const arr = Array.from({ length: n }, (_, v) => ({ ...statsSemana(o, v), atual: v === 0 }));
+  const ord = [...arr].sort((x, y) => y.q - x.q || y.dias - x.dias);
+  return { semanas: arr, pos: ord.findIndex((x) => x.atual) + 1, recorde: ord[0] };
+}
 
 /* ───────────────────────── acesso para a interface */
 export const getS = () => S;
@@ -537,5 +594,6 @@ export {
   questoesDoTema, questoesFiltro, revisoesVencidas, cardsVencidos, simulado, Q, iniciar, responder, registrar, marcar, proxima, finalizar,
   iniciarCards, avaliarCard, pesoObjetivo, planoDoDia, TONS, frase, respostaTutor, MEDALHAS, checarMedalhas, totalQ,
   iniciarPomo, restante, terminarPomo, mmss, ligarTick, falar,
+  irPara, responderEm, iniciarCinco, errosDoTema, marcasTexto, marcarTexto, desmarcarTexto, inicioSemana, statsSemana, desafiosDaSemana, rankingSemanas,
   ETAPA_IC, ETAPAS, segs, ytLink, durTxt, proximaFase, abrirAprender, entrarEtapa, novoExemplo, acaoAprender,
 };

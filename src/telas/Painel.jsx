@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button.jsx";
 import { Progress } from "@/components/ui/progress.jsx";
 import { NumberTicker, ShimmerButton, BorderBeam, Spotlight, Aurora, SplitText, Entra } from "@/components/efeitos/efeitos.jsx";
 import { IconeMat } from "@/icones.jsx";
+import { DesafiosCard } from "./Extras.jsx";
 const Escada3D = lazy(() => import("@/components/Escada3D.jsx"));
 
 export function Vitrine({ o }) {
@@ -96,6 +97,8 @@ export default function Painel() {
             </li>); })}
         </ul>
       </Card>
+
+      <DesafiosCard compacto />
 
       {blocos.length > 0 && (
         <Card>

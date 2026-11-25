@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Zap, RotateCcw, Target, Layers, Repeat, Moon, Volume2 } from "lucide-react";
+import { Zap, RotateCcw, Target, Layers, Repeat, Moon, Volume2, Timer, Headphones, NotebookPen, ClipboardList } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
@@ -77,6 +77,11 @@ function Revisar({ o }) {
   const n = useNucleo(); const rv = n.revisoesVencidas(o), cv = n.cardsVencidos(o);
   const prox = Object.values(n.P().rev).filter((r) => r.due > n.hoje()).length;
   return (<>
+    <div className="grid gap-3 sm:grid-cols-3">
+      <Atalho destaque Ic={Timer} titulo="Modo 5 minutos" desc="6 questões: o que venceu na revisão e seus temas fracos" onClick={n.iniciarCinco} />
+      <Atalho Ic={Headphones} titulo="Ouvir" desc="Resumos e lei seca em voz alta, no ônibus" onClick={() => n.ui.ir("ouvir")} />
+      <Atalho Ic={NotebookPen} titulo="Caderno" desc="Anotações e marca-texto por tema" onClick={() => n.ui.ir("caderno")} />
+    </div>
     <div className="grid gap-3 sm:grid-cols-2">
       {[[Layers, "Flashcards", cv.length, `para hoje (de ${n.CARDS[o].length} no total)`, "Revisar cartões", n.iniciarCards], [Repeat, "Questões que voltaram", rv.length, `vencidas hoje · ${prox} agendadas`, "Refazer agora", () => n.iniciar(rv, "Revisão espaçada")]].map(([Ic, nome, v, sub, acao, fn]) => (
         <Card key={nome}><span className="inline-flex items-center gap-2 text-sm font-bold text-apagado"><Ic className="size-4 text-acc" />{nome}</span>
@@ -106,7 +111,7 @@ export default function Treinar({ revisar }) {
       </div>
       {fracos.some((f) => f.s.t) && <div className="flex flex-wrap items-center gap-2"><span className="mao text-lg text-marca">seus pontos fracos:</span>{fracos.filter((f) => f.s.t).map((f) => <Badge key={f.tema} tone="erro">{f.tema}</Badge>)}</div>}
       <Montar o={o} />
-      <Card className="relative overflow-hidden"><h2 className="text-xl font-bold">Simulado</h2><p className="text-sm text-apagado">{o === "concurso" ? "40 questões no formato da banca, com cronômetro de 3 horas." : "Prova misturando as matérias, com cronômetro."}</p>
+      <Card className="relative overflow-hidden"><h2 className="inline-flex items-center gap-2 text-xl font-bold"><ClipboardList className="size-5 text-marca" />{o === "concurso" ? "Modo prova FAFIPA" : "Modo prova"}</h2><p className="text-sm text-apagado">{o === "concurso" ? "40 questões na divisão do edital (20 de Conhecimentos Específicos, 5 de Português, 5 de Raciocínio Lógico, 5 de Informática, 5 de Legislação), 3 horas de relógio e folha de respostas para marcar como no cartão. O gabarito comentado aparece só no fim. São questões do banco do app no estilo da banca, não provas antigas." : "Prova misturando as matérias, com relógio e folha de respostas. O gabarito comentado aparece só no fim."}</p>
         <div className="grid gap-2 sm:grid-cols-2"><ShimmerButton onClick={() => n.iniciar(n.simulado(o), "Simulado completo", "simulado", { minutos: o === "concurso" ? 180 : 60 })}>Simulado completo</ShimmerButton>
           <Button size="lg" variant="secondary" onClick={() => n.iniciar(n.simulado(o).slice(0, 10), "Mini-simulado", "simulado", { minutos: 15 })}>Mini (10 questões, 15 min)</Button></div></Card>
     </div>
