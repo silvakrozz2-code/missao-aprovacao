@@ -85,6 +85,24 @@ export async function responder(sistema, msgs) {
   throw falha(503, "Todas as IAs grátis estão no limite agora. Tente de novo daqui a pouco.");
 }
 
+/* Vozes neurais da Microsoft (Thalita, Francisca, Antonio) pela API oficial do Azure Speech.
+   O plano grátis (F0) dá 500 mil caracteres por mês. Precisa de AZURE_SPEECH_KEY e AZURE_SPEECH_REGION na Vercel. */
+export const VOZES_MS = { Thalita: "pt-BR-ThalitaMultilingualNeural", Francisca: "pt-BR-FranciscaNeural", Antonio: "pt-BR-AntonioNeural" };
+const xml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+export async function falarAzure(texto, nome) {
+  const { AZURE_SPEECH_KEY: chave, AZURE_SPEECH_REGION: regiao } = process.env;
+  if (!chave || !regiao) throw falha(501, "Vozes da Microsoft não configuradas.");
+  const voz = VOZES_MS[nome] || VOZES_MS.Thalita;
+  const r = await fetch(`https://${encodeURIComponent(regiao)}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+    method: "POST",
+    headers: { "Ocp-Apim-Subscription-Key": chave, "Content-Type": "application/ssml+xml", "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3", "User-Agent": "missao-aprovacao" },
+    body: `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='pt-BR'><voice name='${voz}'>${xml(texto)}</voice></speak>`,
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!r.ok) throw falha(r.status === 429 ? 429 : 502, `Azure ${r.status}`);
+  return Buffer.from(await r.arrayBuffer());
+}
+
 /* Voz natural: Gemini TTS devolve PCM 16 bits, 24 kHz, mono. Embrulhamos num WAV para o navegador tocar. */
 const VOZES = new Set(["Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Leda", "Orus", "Aoede", "Callirrhoe", "Autonoe", "Enceladus", "Iapetus", "Umbriel", "Algieba", "Despina", "Erinome", "Algenib", "Rasalgethi", "Laomedeia", "Achernar", "Alnilam", "Schedar", "Gacrux", "Pulcherrima", "Achird", "Zubenelgenubi", "Vindemiatrix", "Sadachbia", "Sadaltager", "Sulafat"]);
 export async function falarGemini(texto, voz) {

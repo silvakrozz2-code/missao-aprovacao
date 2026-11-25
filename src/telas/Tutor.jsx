@@ -26,10 +26,12 @@ export const AGENTES = [
 ];
 const AG = Object.fromEntries(AGENTES.map((a) => [a.id, a]));
 const CHAVE_AG = "missao-aprovacao-tutor-agente", CHAVE_QUAL = "missao-aprovacao-tutor-qual-voz";
-/* Vozes do Gemini (pelo servidor). O valor salvo é "g:Nome" para Gemini ou "d:Nome" para uma voz do aparelho. */
+/* Vozes pelo servidor. O valor salvo é "m:Nome" para as vozes neurais da Microsoft (Azure), "g:Nome" para Gemini
+   ou "d:Nome" para uma voz do aparelho. Se a Microsoft não responder, o servidor usa o Gemini. */
+const VOZES_MS = [["Thalita", "feminina, natural"], ["Francisca", "feminina, clara"], ["Antonio", "masculina"]];
 const VOZES_IA = [["Achird", "amigável"], ["Sulafat", "calorosa"], ["Zephyr", "animada"], ["Aoede", "leve"], ["Puck", "alegre"], ["Laomedeia", "animada"], ["Algieba", "suave"], ["Vindemiatrix", "gentil"], ["Charon", "informativa, grave"], ["Orus", "firme, grave"], ["Iapetus", "clara, grave"], ["Kore", "firme"]];
 const AMOSTRA = "Oi! Eu sou seu tutor. Vamos estudar juntos? Me pergunta o que quiser.";
-let qualVoz = (() => { try { return localStorage.getItem(CHAVE_QUAL) || "g:Achird"; } catch { return "g:Achird"; } })();
+let qualVoz = (() => { try { return localStorage.getItem(CHAVE_QUAL) || "m:Thalita"; } catch { return "m:Thalita"; } })();
 const TINTA = "#0f1513";
 
 /* ───────── voz: primeiro a voz natural do servidor; se não der, a voz do aparelho */
@@ -40,7 +42,8 @@ const SILENCIO = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAf
 function destravar() { if (destravado || !player) return; destravado = true; try { player.src = SILENCIO; player.play().catch(() => {}); } catch { /* ok */ } }
 const novoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const limparTxt = (t) => t.replace(/\*\*/g, "").replace(/^[-•#]+\s*/gm, "");
-async function audioNatural(txt, voz) {
+async function audioNatural(txt, qual) {
+  const voz = qual.startsWith("m:") ? "ms:" + qual.slice(2) : qual.slice(2);
   const chave = voz + "|" + txt;
   if (cacheAudio.has(chave)) return cacheAudio.get(chave);
   const r = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto: limparTxt(txt), voz }) });
@@ -73,6 +76,8 @@ function PainelVoz({ voz, escolher, falando }) {
   return (
     <section aria-label="Escolher a voz" className="flex flex-col gap-3 rounded-2xl border border-risco bg-folha p-3">
       <p className="text-sm text-apagado">Toque numa voz para ouvir uma amostra. A que você tocar por último fica escolhida.</p>
+      <div><h3 className="mb-1.5 text-sm font-bold">Vozes da Microsoft (as do Edge)</h3>
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{VOZES_MS.map(([nome, d]) => <Opcao key={nome} v={"m:" + nome} nome={nome} desc={d} />)}</div></div>
       <div><h3 className="mb-1.5 text-sm font-bold">Vozes de IA (Gemini)</h3>
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{VOZES_IA.map(([nome, d]) => <Opcao key={nome} v={"g:" + nome} nome={nome} desc={d} />)}</div></div>
       {!!disp.length && <div><h3 className="mb-1.5 text-sm font-bold">Vozes naturais deste aparelho</h3>
@@ -184,7 +189,7 @@ export default function Tutor() {
       (async () => {
         try {
           if (qualVoz.startsWith("d:")) throw new Error("aparelho");
-          const url = await audioNatural(texto, qualVoz.slice(2));
+          const url = await audioNatural(texto, qualVoz);
           if (vez.current !== meu) return; // parou ou trocou enquanto carregava
           player.src = url; player.onended = fimFala; player.onerror = fimFala;
           await player.play();
