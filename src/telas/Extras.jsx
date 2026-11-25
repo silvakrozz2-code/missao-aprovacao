@@ -8,6 +8,7 @@ import { Card, Badge } from "@/components/ui/card.jsx";
 import { Progress } from "@/components/ui/progress.jsx";
 import { NumberTicker } from "@/components/efeitos/efeitos.jsx";
 import { Cabeca } from "./comum.jsx";
+import { fala, vozesPt, melhorVoz, salvarVoz, ehNatural } from "@/nucleo/vozes.js";
 import { Resumo, resumoQualquer } from "./Tema.jsx";
 
 const campo = "min-h-11 w-full rounded-xl border border-risco-2 bg-folha-2 px-3 text-giz";
@@ -31,8 +32,7 @@ export function Ouvir() {
   const falarEm = (k) => {
     const f = vivo.current.fila; if (!ss || k >= f.length) { parar(); return; }
     vivo.current.i = k; setI(k); ss.cancel();
-    const u = new SpeechSynthesisUtterance(f[k].rot === "Tema" ? `Tema: ${f[k].txt}.` : f[k].txt); u.lang = "pt-BR"; u.rate = vivo.current.vel;
-    const v = ss.getVoices().find((x) => x.lang?.startsWith("pt")); if (v) u.voice = v;
+    const u = fala(f[k].rot === "Tema" ? `Tema: ${f[k].txt}.` : f[k].txt, vivo.current.vel);
     u.onend = () => { if (vivo.current.tocando && vivo.current.i === k) setTimeout(() => vivo.current.tocando && falarEm(k + 1), f[k].rot === "Pergunta" ? 1800 : 350); };
     ss.speak(u);
   };
@@ -65,7 +65,30 @@ export function Ouvir() {
           <div role="group" aria-label="Velocidade" className="flex justify-center gap-1">{[.9, 1, 1.25, 1.5].map((v) => <button key={v} type="button" aria-pressed={vel === v} onClick={() => setVel(v)} className={cn("num min-h-9 rounded-lg px-3 text-sm font-bold", vel === v ? "bg-giz text-lousa" : "bg-folha-3 text-apagado")}>{String(v).replace(".", ",")}x</button>)}</div>
         </>) : <p className="text-apagado">Nada para ouvir nesta escolha ainda.</p>}
       </section>
-      <p className="text-sm text-apagado">A voz é a do seu celular. Em alguns aparelhos ela para quando a tela apaga; se acontecer, deixe a tela ligada com o brilho no mínimo.</p>
+      <EscolherVoz />
+      <p className="text-sm text-apagado">A voz é a do seu aparelho. Em alguns aparelhos ela para quando a tela apaga; se acontecer, deixe a tela ligada com o brilho no mínimo.</p>
+    </div>
+  );
+}
+
+export function EscolherVoz() {
+  const [lista, setLista] = useState(() => vozesPt()); const [atual, setAtual] = useState(() => melhorVoz()?.name || "");
+  useEffect(() => {
+    const s = window.speechSynthesis; if (!s) return;
+    const at = () => { const l = vozesPt(); setLista(l); setAtual((a) => a || melhorVoz()?.name || ""); };
+    at(); s.addEventListener?.("voiceschanged", at); return () => s.removeEventListener?.("voiceschanged", at);
+  }, []);
+  const testar = () => { const s = window.speechSynthesis; if (!s) return; s.cancel(); s.speak(fala("Oi! Esta é a voz que vai ler os seus resumos. Vamos estudar?")); };
+  const temNatural = lista.some(ehNatural);
+  return (
+    <div className="flex flex-col gap-2 rounded-2xl border border-risco bg-folha p-4">
+      <label className="flex flex-col gap-1.5 text-sm font-bold">Voz da leitura
+        <select className={campo} value={atual} onChange={(e) => { setAtual(e.target.value); salvarVoz(e.target.value); }}>
+          {!lista.length && <option value="">Voz padrão do aparelho</option>}
+          {lista.map((v, k) => <option key={v.name} value={v.name}>{v.name.replace(/^Microsoft /, "").replace(/ - Portuguese \(Brazil\)/, "")}{ehNatural(v) ? " · natural" : " · robótica"}</option>)}
+        </select></label>
+      <div className="flex flex-wrap items-center gap-2"><Button size="sm" variant="secondary" onClick={testar}><Play /> Testar voz</Button>
+        {!temNatural && <span className="text-sm text-apagado">Este navegador só tem voz robótica. Para voz natural, igual à de assistente, abra o app no Microsoft Edge (vozes Francisca e Antonio). No celular, instale as vozes do Google em Configurações › Texto para fala.</span>}</div>
     </div>
   );
 }

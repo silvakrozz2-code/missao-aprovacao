@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronLeft, Play, Lightbulb, BookOpenCheck, PencilLine, Mountain, Trophy, Check, Volume2, RotateCcw, Search, ArrowRight } from "lucide-react";
+import { ChevronLeft, Play, Lightbulb, BookOpenCheck, PencilLine, Mountain, Trophy, Check, Volume2, RotateCcw, Search, ArrowRight, BookOpen } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress.jsx";
 import { Faiscas, ShimmerButton, NumberTicker } from "@/components/efeitos/efeitos.jsx";
 import { BotaoRascunho } from "@/components/Rascunho.jsx";
 import { TrechoVideo } from "@/components/Video.jsx";
+import { AulaEscrita } from "@/components/AulaEscrita.jsx";
 import { labDoTema } from "@/lab/index.jsx";
 import { Bancada } from "./Lab.jsx";
 import { Alternativas, Tabela, Figura, Passos, Macete, Veredito, LETRAS } from "./comum.jsx";
@@ -19,7 +20,7 @@ function Escada({ ap, ir }) {
   const n = useNucleo();
   return (
     <ol aria-label="Etapas da aula" className="-mx-4 flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-6 md:px-0">
-      {n.ETAPAS.map(([nome, desc], i) => { const Ic = IC[i]; const feito = i < ap.etapa, agora = i === ap.etapa; return (
+      {n.ETAPAS.map(([nome0, desc0], i) => { const semVideo = i === 0 && !(n.TRECHOS[ap.tema] || []).length; const nome = semVideo ? "Aula" : nome0, desc = semVideo ? "leitura com esquema" : desc0; const Ic = semVideo ? BookOpen : IC[i]; const feito = i < ap.etapa, agora = i === ap.etapa; return (
         <li key={nome} className="snap-start" style={{ paddingTop: `${(5 - i) * 4}px` }}>
           <button onClick={() => ir(i)} aria-current={agora ? "step" : undefined} className={cn("relative flex w-[118px] flex-col gap-1 rounded-2xl border p-2.5 text-left transition-colors md:w-auto", agora ? "border-acc bg-folha-2" : feito ? "border-risco bg-folha" : "border-dashed border-risco-2 bg-transparent hover:bg-folha")}>
             {agora && <motion.span layoutId="degrau" className="absolute inset-x-3 -bottom-px h-[3px] rounded-full bg-acc" />}
@@ -51,21 +52,30 @@ function Trecho({ tr, k, tema }) {
 function Assistir({ ap, o }) {
   const n = useNucleo(); const { tema, r } = ap; const trs = (n.TRECHOS[tema] || []).map((t, k) => [t, k]);
   const base = trs.filter(([t]) => t[4] === 1), fundo = trs.filter(([t]) => t[4] !== 1);
+  const [ler, setLer] = useState(false);
   const busca = `https://www.youtube.com/results?search_query=${encodeURIComponent(tema + " " + (o === "concurso" ? "concurso aula" : o === "npor" ? "aula" : "ENEM aula"))}`;
+  const lei = r.lei && <Button asChild size="sm" variant="secondary" className="self-start"><a href={r.lei} target="_blank" rel="noopener">Ler o texto oficial da lei</a></Button>;
   return (<>
-    <Card>
-      <h2 className="text-xl font-bold">Assista primeiro</h2>
-      {trs.length ? (<>
+    {trs.length > 0 && (
+      <Card>
+        <h2 className="text-xl font-bold">Assista primeiro</h2>
         <p className="text-sm text-apagado">Cada botão abre o vídeo gratuito no YouTube no minuto em que o assunto começa. Assista com o caderno aberto, pause e copie os exemplos. Depois volte aqui para praticar.</p>
         {base.length > 0 && <><span className="mao text-lg text-marca">Se está começando do zero</span><div className="flex flex-col gap-2">{base.map(([t, k]) => <Trecho key={k} tr={t} k={k} tema={tema} />)}</div></>}
         {fundo.length > 0 && <><span className="mao text-lg text-marca">{base.length ? "Se já sabe o básico" : "Aula do tema"}</span><div className="flex flex-col gap-2">{fundo.map(([t, k]) => <Trecho key={k} tr={t} k={k} tema={tema} />)}</div></>}
-      </>) : (<>
-        <p className="text-sm text-apagado">Ainda não tenho um trecho com minuto conferido para este tema. A busca abaixo lista as aulas do YouTube; prefira professores conhecidos e vídeos recentes.</p>
-        <Button asChild variant="secondary" className="h-auto self-start whitespace-normal py-2 text-left"><a href={busca} target="_blank" rel="noopener"><Search /> Buscar videoaula de {tema}</a></Button></>)}
-      {r.lei && <Button asChild size="sm" variant="secondary" className="self-start"><a href={r.lei} target="_blank" rel="noopener">Ler o texto oficial da lei</a></Button>}
-    </Card>
-    <div className="flex flex-wrap items-center justify-between gap-3"><span className="text-sm text-apagado">Sem tempo para vídeo? Os cartões a seguir resumem o essencial.</span>
-      <Button onClick={() => n.acaoAprender("ap-prox")}>{trs.length ? "Já assisti, vamos entender" : "Ir para a explicação"} <ArrowRight /></Button></div>
+        {lei}
+        {!ler && <Button variant="secondary" className="self-start" onClick={() => setLer(true)}><BookOpen /> Prefiro ler: abrir a aula escrita</Button>}
+      </Card>
+    )}
+    {(!trs.length || ler) && <AulaEscrita tema={tema} r={r} o={o} />}
+    {!trs.length && (
+      <div className="flex flex-wrap items-center gap-2 text-sm text-apagado">
+        {lei}
+        <span>Quer ver alguém explicando também?</span>
+        <a href={busca} target="_blank" rel="noopener" className="inline-flex items-center gap-1 font-bold text-acc underline underline-offset-4"><Search className="size-4" /> Procurar videoaula no YouTube</a>
+      </div>
+    )}
+    <div className="flex flex-wrap items-center justify-between gap-3"><span className="text-sm text-apagado">{trs.length ? "Sem tempo para vídeo? Os cartões a seguir resumem o essencial." : "Agora vamos fixar com cartões rápidos e depois praticar."}</span>
+      <Button onClick={() => n.acaoAprender("ap-prox")}>{trs.length ? "Já assisti, vamos entender" : "Já li, vamos fixar"} <ArrowRight /></Button></div>
   </>);
 }
 

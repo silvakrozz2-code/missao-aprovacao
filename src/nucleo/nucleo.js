@@ -12,6 +12,7 @@ import { concurso } from "./dados-concurso.js";
 import { npor } from "./dados-npor.js";
 import { enem } from "./dados-enem.js";
 import { resumosFaltantes } from "./resumos-faltantes.js";
+import { fala } from "./vozes.js";
 
 /* ───────────────────────── ponte com a interface */
 export const ui = { ir: () => {}, toast: () => {}, limparRascunho: () => {}, rolarExplicacao: () => {}, topo: () => {} };
@@ -434,8 +435,7 @@ function falar(txt) {
   try {
     const ss = window.speechSynthesis; if (!ss) { toast("Leitura em voz alta não está disponível neste navegador."); return; }
     if (ss.speaking) { ss.cancel(); return; }
-    const u = new SpeechSynthesisUtterance(txt); u.lang = "pt-BR"; u.rate = voz.vel || 1;
-    const v = ss.getVoices().find((x) => x.lang?.startsWith("pt")); if (v) u.voice = v;
+    const u = fala(txt, voz.vel || 1);
     ss.speak(u); return u;
   } catch (e) { toast("Leitura em voz alta não está disponível."); }
 }

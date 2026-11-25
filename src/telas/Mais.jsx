@@ -3,6 +3,7 @@ import { useNucleo } from "@/estado.js";
 import { Spotlight } from "@/components/efeitos/efeitos.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { Cabeca } from "./comum.jsx";
+import { EscolherVoz } from "./Extras.jsx";
 
 export default function Mais() {
   const n = useNucleo(); const S = n.getS(); const o = S.obj;
@@ -27,6 +28,7 @@ export default function Mais() {
               </Spotlight>))}
           </div>
         </section>))}
+      <EscolherVoz />
       <div className="flex flex-wrap gap-2">
         <Button variant="secondary" onClick={() => { S.cfg.tema = claro ? "dark" : "light"; n.salvar(); n.render(); }}><SunMoon /> {claro ? "Usar lousa escura" : "Usar tema claro"}</Button>
         <form method="post" action="/api/entrar?sair=1"><Button type="submit" variant="ghost"><LogOut /> Sair da conta</Button></form>
