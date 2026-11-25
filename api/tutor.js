@@ -29,10 +29,19 @@ export async function POST(req) {
     .map((m) => ({ de: m?.de === "ia" ? "ia" : "eu", txt: String(m?.txt || "").slice(0, 6000) })).filter((m) => m.txt.trim());
   while (msgs.length && msgs[0].de === "ia") msgs.shift(); // a conversa enviada sempre começa pelo aluno
   if (!msgs.length || msgs.at(-1).de !== "eu") return json({ erro: "Escreva sua pergunta." }, 400);
+  // imagem opcional (foto ou print de questão) junto da última mensagem do aluno
+  const img = corpo.imagem;
+  if (img) {
+    const mime = String(img.mime || ""), b64 = String(img.b64 || "");
+    if (!/^image\/(jpeg|png|webp)$/.test(mime) || !b64 || b64.length > 3_000_000 || !/^[A-Za-z0-9+/=]+$/.test(b64)) return json({ erro: "Imagem inválida ou grande demais." }, 400);
+    msgs.at(-1).img = { mime, b64 };
+  }
   const papel = PAPEIS[corpo.agente] || PAPEIS.professor;
   const sistema = `${SISTEMA(corpo.contexto || {})}
 
-${papel}`;
+${papel}${img ? `
+
+O aluno mandou uma imagem (foto ou print). Leia com atenção o enunciado, as alternativas, tabelas e figuras antes de responder. Se algo estiver ilegível ou cortado, diga o que não deu para ler e peça outra foto; não adivinhe o texto.` : ""}`;
   try {
     const { txt, fonte } = await responder(sistema, msgs);
     return json({ txt, fonte });
