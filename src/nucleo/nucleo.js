@@ -110,7 +110,14 @@ function ofensiva() {
   while (ativo(d)) { n++; d = addDias(d, -1); }
   return n;
 }
-function ativo(iso) { const x = S.dias[iso]; return !!x && (x.q > 0 || x.cards > 0 || x.pomo > 0); }
+function ativo(iso) { const x = S.dias[iso]; return !!x && (x.q > 0 || x.cards > 0 || x.pomo > 0 || x.modos > 0); }
+/* Modos de estudo rápidos (certo ou errado, colunas, lacunas, despejo): XP, dia ativo e erros voltando na revisão */
+function registrarModo(acertos, total, idsErrados = []) {
+  const d = dia(); d.modos = (d.modos || 0) + total;
+  ganharXP(acertos * 4 + total);
+  const p = P(); for (const id of idsErrados) if (id && !p.rev[id]) p.rev[id] = { due: addDias(hoje(), 1), step: 0 };
+  checarMedalhas(); salvar(); render();
+}
 
 /* ───────────────────────── estatísticas */
 function statTema(o, tema) {
@@ -595,5 +602,6 @@ export {
   iniciarCards, avaliarCard, pesoObjetivo, planoDoDia, TONS, frase, respostaTutor, MEDALHAS, checarMedalhas, totalQ,
   iniciarPomo, restante, terminarPomo, mmss, ligarTick, falar,
   irPara, responderEm, iniciarCinco, errosDoTema, marcasTexto, marcarTexto, desmarcarTexto, inicioSemana, statsSemana, desafiosDaSemana, rankingSemanas,
+  registrarModo,
   ETAPA_IC, ETAPAS, segs, ytLink, durTxt, proximaFase, abrirAprender, entrarEtapa, novoExemplo, acaoAprender,
 };
