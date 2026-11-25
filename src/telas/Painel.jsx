@@ -107,8 +107,8 @@ export default function Painel() {
             {blocos.map((b, i) => (
               <div key={i} className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-folha-2 p-3">
                 <span className="num text-sm text-apagado">{b.min} min</span>
-                <div className="min-w-0"><b className="block leading-snug">{b.tema}</b><span className="text-sm text-apagado">{b.tipo === "simulado" ? "Mini-simulado" : b.tipo === "revisao" ? "Revisão + 10 questões" : "Aula + 10 questões"}</span></div>
-                <Button size="sm" variant="secondary" onClick={() => b.tipo === "simulado" ? n.iniciar(n.simulado(o).slice(0, 10), "Mini-simulado", "simulado", { minutos: 15 }) : n.abrirAprender(b.tema)}>Começar</Button>
+                <div className="min-w-0"><b className="block leading-snug">{b.tema}</b><span className="text-sm text-apagado">{b.tipo === "simulado" ? "Mini-simulado" : b.tipo === "revisao" ? "Revisão + 10 questões" : b.tipo === "questoes" ? "10 questões" : "Aula + 10 questões"}</span></div>
+                <Button size="sm" variant="secondary" onClick={() => b.tipo === "simulado" ? n.iniciar(n.simulado(o).slice(0, 10), "Mini-simulado", "simulado", { minutos: 15 }) : b.tipo === "questoes" ? n.iniciar(n.questoesDoTema(o, b.tema, 0, 10), b.tema) : n.abrirAprender(b.tema)}>Começar</Button>
               </div>))}
           </div>
         </Card>)}

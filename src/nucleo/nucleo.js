@@ -9,6 +9,7 @@ import { VIDEOS, TRECHOS } from "./videos.js";
 import { concurso } from "./dados-concurso.js";
 import { npor } from "./dados-npor.js";
 import { enem } from "./dados-enem.js";
+import { resumosFaltantes } from "./resumos-faltantes.js";
 
 /* ───────────────────────── ponte com a interface */
 export const ui = { ir: () => {}, toast: () => {}, limparRascunho: () => {}, rolarExplicacao: () => {}, topo: () => {} };
@@ -38,6 +39,7 @@ const DIAS_SEM = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 /* ───────────────────────── dados */
 const OBJS = { concurso, npor, enem };
 const ORDEM = ["concurso", "npor", "enem"];
+for (const o of ORDEM) OBJS[o].resumos = { ...resumosFaltantes[o], ...OBJS[o].resumos };
 const TODOS_GEN = [...geradoresBase, ...geradoresA, ...geradoresB, ...geradoresExtra];
 // banco grande: ids prefixados por aba ("b-concurso-..."), para cada objetivo ter o seu
 const BANCO_GEN = Object.fromEntries(ORDEM.map((o) => [o, bancoGrande[o].map((g) => ({ ...g, id: `b-${o}-${g.id}` }))]));
@@ -299,6 +301,7 @@ function pesoObjetivo(iso) {
   if (iso <= dn) return { concurso: 0, npor: 0.8, enem: 0.2 };
   return { concurso: 0, npor: 0, enem: 1 };
 }
+const temAula = (o, tema) => !!(resumoDe(o, tema) || Object.values(OBJS).some((x) => x.resumos[tema]));
 function planoDoDia(iso) {
   const dow = new Date(iso + "T12:00:00").getDay();
   const min = +S.cfg.horas[dow] || 0;
@@ -318,7 +321,7 @@ function planoDoDia(iso) {
       const f = fracos[(base + k) % fracos.length];
       if (!f) break;
       if (dow === 6 && k === 0 && o === objs[0]) { blocos.push({ o, tipo: "simulado", tema: "Simulado", min: 30 }); continue; }
-      blocos.push({ o, tipo: k % 3 === 2 ? "revisao" : "tema", tema: f.tema, min: 30 });
+      blocos.push({ o, tipo: k % 3 === 2 ? "revisao" : temAula(o, f.tema) ? "tema" : "questoes", tema: f.tema, min: 30 });
     }
   }
   if (S.obj === "npor" || pesos.npor > 0) blocos.push({ o: "npor", tipo: "taf", tema: "Treino físico (TAF)", min: 45, extra: true });
@@ -453,7 +456,7 @@ function proximaFase(o) {
 function abrirAprender(tema) {
   const o = S.obj;
   const r = resumoDe(o, tema) || Object.values(OBJS).map((x) => x.resumos[tema]).find(Boolean);
-  if (!r) { toast("Este tema ainda não tem aula."); return; }
+  if (!r) { const ids = questoesDoTema(o, tema, 0, 10); if (ids.length) { toast("Esse tema ainda não tem aula. Abri as questões."); iniciar(ids, tema); } else toast("Esse tema ainda não tem aula nem questões."); return; }
   P().vistos[tema] = true; salvar();
   try { speechSynthesis.cancel(); } catch (er) { /* */ }
   ap = { tema, r, etapa: 0, card: 0, travou: false, ex: null, fila: [], qi: 0, q: null, acertos: 0, total: 0, usados: new Set(), extra: 0, log: [] };
