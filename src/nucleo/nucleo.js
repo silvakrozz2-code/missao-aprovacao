@@ -2,9 +2,11 @@
 // Sem DOM: a interface (React) se inscreve com subscribe() e recebe ui.* para navegar e avisar.
 import { geradoresA } from "./lib/gerar/matematica-a.ts";
 import { geradoresB } from "./lib/gerar/matematica-b.ts";
+import { geradoresC, resumosMatC } from "./lib/gerar/matematica-c.ts";
 import { criarRng } from "./lib/gerar/util.ts";
 import { geradoresExtra, geradoresBase, resumosMat } from "./gen-extra.ts";
 import { bancoGrande } from "./banco/index.ts";
+import { resumosPort } from "./banco/portugues-niveis.ts";
 import { VIDEOS, TRECHOS } from "./videos.js";
 import { concurso } from "./dados-concurso.js";
 import { npor } from "./dados-npor.js";
@@ -40,15 +42,16 @@ const DIAS_SEM = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const OBJS = { concurso, npor, enem };
 const ORDEM = ["concurso", "npor", "enem"];
 for (const o of ORDEM) OBJS[o].resumos = { ...resumosFaltantes[o], ...OBJS[o].resumos };
-const TODOS_GEN = [...geradoresBase, ...geradoresA, ...geradoresB, ...geradoresExtra];
+Object.assign(resumosMat, resumosMatC, resumosPort);
+const TODOS_GEN = [...geradoresBase, ...geradoresA, ...geradoresB, ...geradoresC, ...geradoresExtra];
 // banco grande: ids prefixados por aba ("b-concurso-..."), para cada objetivo ter o seu
 const BANCO_GEN = Object.fromEntries(ORDEM.map((o) => [o, bancoGrande[o].map((g) => ({ ...g, id: `b-${o}-${g.id}` }))]));
 const GEN = Object.fromEntries([...TODOS_GEN, ...ORDEM.flatMap((o) => BANCO_GEN[o])].map((g) => [g.id, g]));
 const NPOR_TEMAS_AB = new Set(["Porcentagem", "Probabilidade", "Estatística", "Regra de três", "Juros simples", "Áreas e superfícies", "Circunferência", "Razão e proporção", "Resolução de problemas"]);
 const genDoObj = {
-  concurso: [...geradoresBase, ...geradoresA, ...geradoresB],
-  npor: [...geradoresBase, ...geradoresExtra, ...[...geradoresA, ...geradoresB].filter((g) => NPOR_TEMAS_AB.has(g.tema))],
-  enem: [...geradoresBase, ...geradoresExtra, ...geradoresA, ...geradoresB].filter((g) => g.tema !== "Noções de direção" && g.tema !== "Sistema monetário"),
+  concurso: [...geradoresBase, ...geradoresA, ...geradoresB, ...geradoresC],
+  npor: [...geradoresBase, ...geradoresExtra, ...geradoresC, ...[...geradoresA, ...geradoresB].filter((g) => NPOR_TEMAS_AB.has(g.tema))],
+  enem: [...geradoresBase, ...geradoresExtra, ...geradoresA, ...geradoresB, ...geradoresC].filter((g) => g.tema !== "Noções de direção" && g.tema !== "Sistema monetário"),
 };
 const genMat = { ...genDoObj }; // só Matemática/RL: define os temas das matérias "gerado"
 for (const o of ORDEM) genDoObj[o] = [...genDoObj[o], ...BANCO_GEN[o]];

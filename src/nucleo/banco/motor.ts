@@ -48,7 +48,7 @@ export function deAfirmacoes(a: Afirmacoes): Gerador[] {
   const nivel = a.nivel ?? "intermediario";
   return [
     {
-      ...base, id: `${a.id}-c`, nivel,
+      ...base, id: `${a.id}-c`, nivel: nivel === "intermediario" ? "basico" : nivel,
       gerar(rng) {
         const certa = rng.pick(a.v);
         const falsas = amostra(rng, a.f, 4);
@@ -84,30 +84,36 @@ export function deAfirmacoes(a: Afirmacoes): Gerador[] {
           ...amostra(rng, a.v, qtdV).map((t) => ({ t, ok: true, c: "" })),
           ...amostra(rng, a.f, n - qtdV).map(([t, c]) => ({ t, ok: false, c })),
         ]);
-        const certas = itens.map((x, i) => (x.ok ? ROMANOS[i] : "")).filter(Boolean);
-        const rot = (sel: string[]) =>
-          sel.length === 0 ? "Nenhuma afirmativa está correta." : sel.length === n ? "Todas as afirmativas estão corretas." : sel.length === 1 ? `Somente a afirmativa ${sel[0]} está correta.` : `Somente as afirmativas ${sel.slice(0, -1).join(", ")} e ${sel.at(-1)} estão corretas.`;
-        const correta = rot(certas);
-        // distratores: conjuntos vizinhos (troca um item) primeiro, depois quaisquer
-        const todosSub: string[][] = [];
-        for (let m = 0; m < 1 << n; m++) todosSub.push(ROMANOS.slice(0, n).filter((_, i) => m & (1 << i)));
-        const dist = (s: string[]) => ROMANOS.slice(0, n).filter((r) => s.includes(r) !== certas.includes(r)).length;
-        const cand = rng.shuffle(todosSub.filter((s) => dist(s) > 0)).sort((x, y) => dist(x) - dist(y)).slice(0, 4);
-        const errados = cand.map((s) => {
-          const r = ROMANOS.slice(0, n).find((k) => s.includes(k) !== certas.includes(k))!;
-          const i = ROMANOS.indexOf(r);
-          return { txt: rot(s), erro: itens[i].ok ? `A afirmativa ${r} está correta e ficou de fora.` : `A afirmativa ${r} está errada: ${itens[i].c}` };
-        });
-        return {
-          enunciado: `${a.cmd ? a.cmd.j : `Sobre ${a.sobre}, analise as afirmativas:`}\n\n${itens.map((x, i) => `${ROMANOS[i]}. ${x.t}`).join("\n")}\n\nAssinale a alternativa correta.`,
-          ...embaralhar(rng, correta, errados),
-          explicacao: itens.map((x, i) => `${ROMANOS[i]}: ${x.ok ? "certa" : `errada (${x.c})`}`).join(" "),
-          passos: itens.map((x, i) => `${ROMANOS[i]} é ${x.ok ? "CERTA" : "ERRADA"}${x.ok ? "." : `: ${x.c}`}`),
-          macete: "Julgue item por item e risque as alternativas que contradizem o que você já decidiu. Muitas vezes nem precisa julgar todos.",
-        };
+        return julgar(rng, itens, a.cmd ? a.cmd.j : `Sobre ${a.sobre}, analise as afirmativas:`);
       },
     },
   ];
+}
+
+/** Julgamento I, II, III (IV): monta a questão "quais estão corretas" a partir de itens certos e errados. */
+export function julgar(rng: Rng, itens: { t: string; ok: boolean; c: string }[], titulo: string): CorpoQuestao {
+  const n = itens.length;
+  const certas = itens.map((x, i) => (x.ok ? ROMANOS[i] : "")).filter(Boolean);
+  const rot = (sel: string[]) =>
+    sel.length === 0 ? "Nenhuma afirmativa está correta." : sel.length === n ? "Todas as afirmativas estão corretas." : sel.length === 1 ? `Somente a afirmativa ${sel[0]} está correta.` : `Somente as afirmativas ${sel.slice(0, -1).join(", ")} e ${sel.at(-1)} estão corretas.`;
+  const correta = rot(certas);
+  // distratores: conjuntos vizinhos (troca um item) primeiro, depois quaisquer
+  const todosSub: string[][] = [];
+  for (let m = 0; m < 1 << n; m++) todosSub.push(ROMANOS.slice(0, n).filter((_, i) => m & (1 << i)));
+  const dist = (s: string[]) => ROMANOS.slice(0, n).filter((r) => s.includes(r) !== certas.includes(r)).length;
+  const cand = rng.shuffle(todosSub.filter((s) => dist(s) > 0)).sort((x, y) => dist(x) - dist(y)).slice(0, 4);
+  const errados = cand.map((s) => {
+    const r = ROMANOS.slice(0, n).find((k) => s.includes(k) !== certas.includes(k))!;
+    const i = ROMANOS.indexOf(r);
+    return { txt: rot(s), erro: itens[i].ok ? `A afirmativa ${r} está correta e ficou de fora.` : `A afirmativa ${r} está errada: ${itens[i].c}` };
+  });
+  return {
+    enunciado: `${titulo}\n\n${itens.map((x, i) => `${ROMANOS[i]}. ${x.t}`).join("\n")}\n\nAssinale a alternativa correta.`,
+    ...embaralhar(rng, correta, errados),
+    explicacao: itens.map((x, i) => `${ROMANOS[i]}: ${x.ok ? "certa" : `errada (${x.c})`}`).join(" "),
+    passos: itens.map((x, i) => `${ROMANOS[i]} é ${x.ok ? "CERTA" : "ERRADA"}${x.ok ? "." : `: ${x.c}`}`),
+    macete: "Julgue item por item e risque as alternativas que contradizem o que você já decidiu. Muitas vezes nem precisa julgar todos.",
+  };
 }
 
 /** Pares chave → valor. Gera pergunta direta (chave → valor) e inversa (valor → chave). */
@@ -130,7 +136,7 @@ export function deFatos(f: Fatos): Gerador[] {
   const out: Gerador[] = [];
   if (valores.length >= 5)
     out.push({
-      ...base, id: `${f.id}-d`,
+      ...base, id: `${f.id}-d`, nivel: base.nivel === "intermediario" && f.inv ? "basico" : base.nivel,
       gerar(rng) {
         const [k, v, nota] = rng.pick(f.itens);
         const outros = amostra(rng, valores.filter((x) => x !== v), 4);
@@ -163,6 +169,19 @@ export function deFatos(f: Fatos): Gerador[] {
       },
     });
   }
+  if (f.itens.length >= 6 && valores.length >= 2)
+    out.push({
+      ...base, id: `${f.id}-j`, nivel: "avancado",
+      gerar(rng) {
+        const n = rng.bool(0.4) ? 4 : 3;
+        const itens = amostra(rng, f.itens, n).map(([k, v]) => {
+          if (rng.bool()) return { t: `${k}: ${v}.`, ok: true, c: "" };
+          const outro = rng.pick(valores.filter((x) => x !== v));
+          return { t: `${k}: ${outro}.`, ok: false, c: `o certo é "${k}: ${v}"` };
+        });
+        const q = julgar(rng, itens, "Analise as associações abaixo:"); return f.macete ? { ...q, macete: f.macete } : q;
+      },
+    });
   return out;
 }
 
@@ -231,5 +250,16 @@ export function deLacunas(l: Lacunas): Gerador[] {
       };
     },
   };
-  return [um, tres];
+  const jul: Gerador = {
+    ...base, id: `${l.id}-j`, nivel: "avancado",
+    gerar(rng) {
+      const n = rng.bool(0.4) ? 4 : 3;
+      const itens = amostra(rng, l.frases, n).map(([fr, resp, mot]) => {
+        if (rng.bool()) return { t: fr.replace("___", resp), ok: true, c: "" };
+        return { t: fr.replace("___", rng.pick(l.opcoes.filter((o) => o.toLowerCase() !== resp.toLowerCase()))), ok: false, c: `o certo é "${resp}": ${mot}` };
+      });
+      const q = julgar(rng, itens, "Analise as frases quanto à norma-padrão:"); return l.macete ? { ...q, macete: l.macete } : q;
+    },
+  };
+  return [um, tres, jul];
 }
