@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0f1513" /><meta name="robots" content="noindex" />
+<title>Entrar · Missão Aprovação</title>
+<link rel="icon" href="/icone.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Archivo:wdth,wght@100..125,700..800&family=Kalam:wght@400;700&display=swap" />
+<style>
+:root { --lousa:#0f1513; --folha:#161f1b; --folha-2:#1e2924; --giz:#eef0e8; --apagado:#a5b0a8; --risco:#2a3731; --risco-2:#3a4a42; --acc:#8cc4ff; --sobre-acc:#0b1a2a; --marca:#f5d76e; --erro:#ff8a7a; }
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--lousa); color: var(--giz); font: 17px/1.5 "Atkinson Hyperlegible", system-ui, sans-serif; }
+body { min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px;
+  background: radial-gradient(90% 60% at 15% 0%, rgba(140,196,255,.10), transparent 60%), radial-gradient(70% 50% at 100% 100%, rgba(245,215,110,.08), transparent 60%), var(--lousa); }
+main { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 22px; }
+.marca { display: flex; align-items: center; gap: 12px; }
+.logo { width: 46px; height: 46px; border-radius: 14px; background: var(--acc); color: var(--sobre-acc); display: grid; place-items: center; font: 700 1.25rem "Kalam", cursive; }
+.marca b { font: 800 1.35rem "Archivo", sans-serif; font-stretch: 110%; display: block; line-height: 1.1; }
+.marca span { color: var(--apagado); font-size: .85rem; }
+h1 { margin: 0; font: 800 2.4rem/1.05 "Archivo", sans-serif; font-stretch: 112%; }
+.mao { font-family: "Kalam", cursive; color: var(--marca); font-size: 1.15rem; transform: rotate(-2deg); display: inline-block; }
+form { display: flex; flex-direction: column; gap: 14px; background: var(--folha); border: 1px solid var(--risco); border-radius: 24px; padding: 22px; }
+label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: .92rem; }
+input { min-height: 48px; border-radius: 12px; border: 1px solid var(--risco-2); background: var(--folha-2); color: var(--giz); padding: 0 14px; font: inherit; }
+input:focus-visible, button:focus-visible { outline: 3px solid var(--acc); outline-offset: 2px; }
+button { min-height: 50px; border: 0; border-radius: 14px; background: var(--acc); color: var(--sobre-acc); font: 700 1rem "Atkinson Hyperlegible", sans-serif; cursor: pointer; box-shadow: 0 12px 30px -14px var(--acc); }
+button:active { transform: scale(.98); }
+.erro { margin: 0; color: var(--erro); font-weight: 700; }
+.risco { height: 14px; }
+.nota { color: var(--apagado); font-size: .85rem; text-align: center; margin: 0; }
+@media (prefers-reduced-motion: no-preference) { main { animation: sobe .5s cubic-bezier(.32,.72,0,1) both; } @keyframes sobe { from { opacity: 0; transform: translateY(12px); } } }
+</style>
+</head>
+<body>
+<main>
+  <div class="marca"><div class="logo">MA</div><div><b>Missão Aprovação</b><span>Concurso Curitiba · NPOR · ENEM</span></div></div>
+  <div><span class="mao">bora estudar?</span><h1>Entrar</h1>
+    <svg class="risco" viewBox="0 0 200 14" width="160" aria-hidden="true"><path d="M2 9 Q 50 2 100 8 T 198 6" fill="none" stroke="#f5d76e" stroke-width="3" stroke-linecap="round"/></svg></div>
+  <form method="post" action="/api/entrar">
+    <p class="erro" id="erro" role="alert" hidden>Usuário ou senha incorretos. Confira e tente de novo.</p>
+    <label>Usuário<input name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus /></label>
+    <label>Senha<input name="senha" type="password" autocomplete="current-password" required /></label>
+    <input type="hidden" name="volta" id="volta" value="/" />
+    <button type="submit">Entrar</button>
+  </form>
+  <p class="nota">Você fica conectado neste aparelho por 90 dias.</p>
+</main>
+<script>
+  const p = new URLSearchParams(location.search);
+  if (p.get("erro")) document.getElementById("erro").hidden = false;
+  if (p.get("volta")) document.getElementById("volta").value = p.get("volta");
+</script>
+</body>
+</html>

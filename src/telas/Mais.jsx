@@ -1,4 +1,4 @@
-import { CalendarDays, ChartColumn, MessageCircle, Timer, FileClock, Moon, NotebookPen, Scale, Dumbbell, Settings, HardDriveDownload, ChevronRight, SunMoon } from "lucide-react";
+import { CalendarDays, ChartColumn, MessageCircle, Timer, FileClock, Moon, NotebookPen, Scale, Dumbbell, Settings, HardDriveDownload, ChevronRight, SunMoon, LogOut } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { Spotlight } from "@/components/efeitos/efeitos.jsx";
 import { Button } from "@/components/ui/button.jsx";
@@ -27,7 +27,10 @@ export default function Mais() {
               </Spotlight>))}
           </div>
         </section>))}
-      <Button variant="secondary" className="self-start" onClick={() => { S.cfg.tema = claro ? "dark" : "light"; n.salvar(); n.render(); }}><SunMoon /> {claro ? "Usar lousa escura" : "Usar tema claro"}</Button>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" onClick={() => { S.cfg.tema = claro ? "dark" : "light"; n.salvar(); n.render(); }}><SunMoon /> {claro ? "Usar lousa escura" : "Usar tema claro"}</Button>
+        <form method="post" action="/api/entrar?sair=1"><Button type="submit" variant="ghost"><LogOut /> Sair da conta</Button></form>
+      </div>
     </div>
   );
 }
