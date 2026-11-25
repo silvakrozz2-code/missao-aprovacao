@@ -110,7 +110,7 @@ function Resolvido({ ap }) {
   return (<>
     <Card className="gap-4">
       <div className="flex items-center justify-between"><span className="mao text-lg text-marca">Exemplo resolvido</span><span className="flex items-center gap-1"><BotaoRascunho /><Button size="sm" variant="ghost" onClick={() => n.acaoAprender("ap-novo-ex")}><RotateCcw /> Outro</Button></span></div>
-      <p className="text-lg leading-relaxed">{q.enunciado}</p><Tabela q={q} /><Figura fg={q.figura} />
+      <p className="whitespace-pre-line text-lg leading-relaxed">{q.enunciado}</p><Tabela q={q} /><Figura fg={q.figura} />
       {passos.length ? (<>
         <Passos passos={passos.slice(0, ap.ex.mostrados)} />
         {tudo ? (<><Veredito ok>Resposta: {q.alternativas[q.correta]}</Veredito>{q.macete && <Macete>{q.macete}</Macete>}</>)
@@ -132,7 +132,7 @@ function Pratica({ ap }) {
     <Card className="relative gap-4">
       <Faiscas disparo={resp?.ok ? `${id}-${ap.qi}` : null} />
       <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-bold text-apagado">Questão <span className="num">{ap.qi + 1}</span> de <span className="num">{ap.fila.length}</span></span><span className="flex items-center gap-2"><Badge tone="acc">{n.NIVEL_TXT[etapa - 2]}</Badge><BotaoRascunho /></span></div>
-      <p className="text-lg leading-relaxed">{q.enunciado}</p><Tabela q={q} /><Figura fg={q.figura} />
+      <p className="whitespace-pre-line text-lg leading-relaxed">{q.enunciado}</p><Tabela q={q} /><Figura fg={q.figura} />
       <Alternativas q={q} resp={resp} onEscolher={(k) => n.acaoAprender("ap-alt", { k })} />
       {!resp && (ap.q.dica ? <Macete rot="Dica">{dica}</Macete> : etapa < 5 ? <Button size="sm" variant="ghost" className="self-start" onClick={() => n.acaoAprender("ap-dica")}><Lightbulb /> Quero uma dica</Button> : <p className="text-sm text-apagado">No nível prova não tem dica. Respire e confie no que você viu.</p>)}
       {resp && (<>

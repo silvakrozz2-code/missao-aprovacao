@@ -4,6 +4,7 @@ import { geradoresA } from "./lib/gerar/matematica-a.ts";
 import { geradoresB } from "./lib/gerar/matematica-b.ts";
 import { criarRng } from "./lib/gerar/util.ts";
 import { geradoresExtra, geradoresBase, resumosMat } from "./gen-extra.ts";
+import { bancoGrande } from "./banco/index.ts";
 import { VIDEOS, TRECHOS } from "./videos.js";
 import { concurso } from "./dados-concurso.js";
 import { npor } from "./dados-npor.js";
@@ -38,13 +39,17 @@ const DIAS_SEM = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const OBJS = { concurso, npor, enem };
 const ORDEM = ["concurso", "npor", "enem"];
 const TODOS_GEN = [...geradoresBase, ...geradoresA, ...geradoresB, ...geradoresExtra];
-const GEN = Object.fromEntries(TODOS_GEN.map((g) => [g.id, g]));
+// banco grande: ids prefixados por aba ("b-concurso-..."), para cada objetivo ter o seu
+const BANCO_GEN = Object.fromEntries(ORDEM.map((o) => [o, bancoGrande[o].map((g) => ({ ...g, id: `b-${o}-${g.id}` }))]));
+const GEN = Object.fromEntries([...TODOS_GEN, ...ORDEM.flatMap((o) => BANCO_GEN[o])].map((g) => [g.id, g]));
 const NPOR_TEMAS_AB = new Set(["Porcentagem", "Probabilidade", "Estatística", "Regra de três", "Juros simples", "Áreas e superfícies", "Circunferência", "Razão e proporção", "Resolução de problemas"]);
 const genDoObj = {
   concurso: [...geradoresBase, ...geradoresA, ...geradoresB],
   npor: [...geradoresBase, ...geradoresExtra, ...[...geradoresA, ...geradoresB].filter((g) => NPOR_TEMAS_AB.has(g.tema))],
   enem: [...geradoresBase, ...geradoresExtra, ...geradoresA, ...geradoresB].filter((g) => g.tema !== "Noções de direção" && g.tema !== "Sistema monetário"),
 };
+const genMat = { ...genDoObj }; // só Matemática/RL: define os temas das matérias "gerado"
+for (const o of ORDEM) genDoObj[o] = [...genDoObj[o], ...BANCO_GEN[o]];
 // monta índices: banco escrito, temas por matéria
 const BANCO = {}; const TEMA_MAT = {}; const TEMAS_MAT = {}; const CARDS = {};
 for (const o of ORDEM) {
@@ -57,7 +62,8 @@ for (const o of ORDEM) {
   TEMA_MAT[o] = {}; TEMAS_MAT[o] = {};
   for (const m of d.materias) {
     let temas = m.temas || [];
-    if (m.gerado) temas = [...new Set(genDoObj[o].map((g) => g.tema))];
+    if (m.gerado) temas = [...new Set(genMat[o].map((g) => g.tema))];
+    else temas = [...new Set([...temas, ...BANCO_GEN[o].filter((g) => g.materia === m.nome).map((g) => g.tema)])];
     TEMAS_MAT[o][m.id] = temas;
     temas.forEach((t) => (TEMA_MAT[o][t] = m.id));
   }
