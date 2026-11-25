@@ -8,6 +8,7 @@ import { Card, Badge } from "@/components/ui/card.jsx";
 import { Progress } from "@/components/ui/progress.jsx";
 import { Spotlight, NumberTicker, ShimmerButton } from "@/components/efeitos/efeitos.jsx";
 import { Cabeca } from "./comum.jsx";
+import { MODOS, abrirModo } from "./Modos.jsx";
 
 const campo = "min-h-11 w-full rounded-xl border border-risco-2 bg-folha-2 px-3 text-giz disabled:opacity-50";
 
@@ -110,6 +111,8 @@ export default function Treinar({ revisar }) {
         <Atalho Ic={Target} titulo="Pegadinhas da banca" desc="Só “alta chance”, matérias misturadas" onClick={() => n.iniciar(n.questoesFiltro(o, { alta: true, n: 10 }), "Pegadinhas da banca")} />
       </div>
       {fracos.some((f) => f.s.t) && <div className="flex flex-wrap items-center gap-2"><span className="mao text-lg text-marca">seus pontos fracos:</span>{fracos.filter((f) => f.s.t).map((f) => <Badge key={f.tema} tone="erro">{f.tema}</Badge>)}</div>}
+      <section className="flex flex-col gap-3" aria-labelledby="outras"><h2 id="outras" className="inline-flex items-baseline gap-2 text-xl font-bold">Outras formas de estudar <span className="mao text-base font-normal text-marca">sem cara de lista</span></h2>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{MODOS.map((m) => <Atalho key={m.id} Ic={m.Ic} titulo={m.nome} desc={m.desc} onClick={() => abrirModo(m.id, n.ui.ir)} />)}</div></section>
       <Montar o={o} />
       <Card className="relative overflow-hidden"><h2 className="inline-flex items-center gap-2 text-xl font-bold"><ClipboardList className="size-5 text-marca" />{o === "concurso" ? "Modo prova FAFIPA" : "Modo prova"}</h2><p className="text-sm text-apagado">{o === "concurso" ? "40 questões na divisão do edital (20 de Conhecimentos Específicos, 5 de Português, 5 de Raciocínio Lógico, 5 de Informática, 5 de Legislação), 3 horas de relógio e folha de respostas para marcar como no cartão. O gabarito comentado aparece só no fim. São questões do banco do app no estilo da banca, não provas antigas." : "Prova misturando as matérias, com relógio e folha de respostas. O gabarito comentado aparece só no fim."}</p>
         <div className="grid gap-2 sm:grid-cols-2"><ShimmerButton onClick={() => n.iniciar(n.simulado(o), "Simulado completo", "simulado", { minutos: o === "concurso" ? 180 : 60 })}>Simulado completo</ShimmerButton>

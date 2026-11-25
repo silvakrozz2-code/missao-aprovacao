@@ -12,10 +12,11 @@ import Mais from "./telas/Mais.jsx";
 import Rascunho from "./components/Rascunho.jsx";
 import { Ouvir, CadernoTela, Desafios } from "./telas/Extras.jsx";
 import Lab from "./telas/Lab.jsx";
+import Modos from "./telas/Modos.jsx";
 
-const ROTAS = ["painel", "trilha", "treinar", "revisar", "mais", "aprender", "questao", "resultado", "cards", "ouvir", "caderno", "desafios", "lab"];
+const ROTAS = ["painel", "trilha", "treinar", "revisar", "mais", "aprender", "questao", "resultado", "cards", "ouvir", "caderno", "desafios", "lab", "modos"];
 const NAV = [["painel", "Painel", House], ["trilha", "Trilha", Route], ["treinar", "Treinar", PencilLine], ["revisar", "Revisar", Layers], ["mais", "Mais", Ellipsis]];
-const PAI = { aprender: "trilha", questao: "treinar", resultado: "treinar", cards: "revisar", ouvir: "revisar", caderno: "revisar", desafios: "painel", lab: "trilha" };
+const PAI = { aprender: "trilha", questao: "treinar", resultado: "treinar", cards: "revisar", ouvir: "revisar", caderno: "revisar", desafios: "painel", lab: "trilha", modos: "treinar" };
 
 function Toast() {
   const [msg, setMsg] = useState(null);
@@ -65,6 +66,7 @@ export default function App() {
   else if (rota === "resultado" && n.getSess()) tela = <Resultado />;
   else if (rota === "cards" && n.getFc()) tela = <Cards />;
   else if (rota === "lab") tela = <Lab />;
+  else if (rota === "modos") tela = <Modos />;
   else if (rota === "ouvir") tela = <Ouvir />;
   else if (rota === "caderno") tela = <CadernoTela />;
   else if (rota === "desafios") tela = <Desafios />;
