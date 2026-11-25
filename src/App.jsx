@@ -14,10 +14,11 @@ import { Ouvir, CadernoTela, Desafios } from "./telas/Extras.jsx";
 import Lab from "./telas/Lab.jsx";
 import Modos from "./telas/Modos.jsx";
 import Contas from "./telas/Contas.jsx";
+import Tutor from "./telas/Tutor.jsx";
 
-const ROTAS = ["painel", "trilha", "treinar", "revisar", "mais", "aprender", "questao", "resultado", "cards", "ouvir", "caderno", "desafios", "lab", "modos", "contas"];
+const ROTAS = ["painel", "trilha", "treinar", "revisar", "mais", "aprender", "questao", "resultado", "cards", "ouvir", "caderno", "desafios", "lab", "modos", "contas", "tutor"];
 const NAV = [["painel", "Painel", House], ["trilha", "Trilha", Route], ["treinar", "Treinar", PencilLine], ["revisar", "Revisar", Layers], ["mais", "Mais", Ellipsis]];
-const PAI = { aprender: "trilha", questao: "treinar", resultado: "treinar", cards: "revisar", ouvir: "revisar", caderno: "revisar", desafios: "painel", lab: "trilha", modos: "treinar", contas: "treinar" };
+const PAI = { aprender: "trilha", questao: "treinar", resultado: "treinar", cards: "revisar", ouvir: "revisar", caderno: "revisar", desafios: "painel", lab: "trilha", modos: "treinar", contas: "treinar", tutor: "mais" };
 
 function Toast() {
   const [msg, setMsg] = useState(null);
@@ -69,6 +70,7 @@ export default function App() {
   else if (rota === "lab") tela = <Lab />;
   else if (rota === "modos") tela = <Modos />;
   else if (rota === "contas") tela = <Contas />;
+  else if (rota === "tutor") tela = <Tutor />;
   else if (rota === "ouvir") tela = <Ouvir />;
   else if (rota === "caderno") tela = <CadernoTela />;
   else if (rota === "desafios") tela = <Desafios />;
@@ -96,7 +98,7 @@ export default function App() {
         {!prova && (
           <header className="vidro sticky top-0 z-30 flex flex-col gap-2 border-b border-risco px-4 pb-2 pt-[calc(10px+env(safe-area-inset-top))] md:hidden">
             <div className="flex items-center justify-between"><div className="flex items-center gap-2.5"><div className="mao grid size-9 place-items-center rounded-xl bg-acc font-bold text-sobre-acc">MA</div><div><b className="font-display block leading-tight">Missão Aprovação</b><span className="text-xs text-apagado">Nível {nv} · ofensiva <span className="num">{n.ofensiva()}</span></span></div></div>
-              <a href="/classico/#tutor" className="grid size-10 place-items-center rounded-xl border border-risco-2 bg-folha-2" aria-label="Abrir tutor"><MessageCircle className="size-5" /></a></div>
+              <a href="#tutor" onClick={(e) => { e.preventDefault(); ir("tutor"); }} className="grid size-10 place-items-center rounded-xl border border-risco-2 bg-folha-2" aria-label="Abrir tutor"><MessageCircle className="size-5" /></a></div>
             <Objetivos />
           </header>)}
         <main id="conteudo" className={cn("mx-auto w-full max-w-3xl px-4 pt-5 md:px-8 md:pt-8", prova ? "pb-10" : "pb-[calc(110px+env(safe-area-inset-bottom))] md:pb-12")}>
