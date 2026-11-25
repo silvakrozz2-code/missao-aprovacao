@@ -9,6 +9,7 @@ import { portugues, literatura, OBRAS } from "./portugues.ts";
 import { historiaBrasil, exercito, geografiaBrasil, escolasLit } from "./humanas.ts";
 import { enemConteudo, nporRedacao } from "./enem.ts";
 import { regencia } from "./regencia.ts";
+import { portuguesNiveis } from "./portugues-niveis.ts";
 import { excelGen, linuxGen, unidadesGen, cartografiaGen, seculoGen, fisicaGen, quimicaGen } from "./parametricos.ts";
 
 const QUINHENTOS_AO_ARCADISMO = new Set(["Quinhentismo", "Barroco", "Arcadismo"]);
@@ -23,6 +24,7 @@ const concurso: Gerador[] = [
   ...linuxGen("Noções de Informática", "Linux Ubuntu"),
   ...unidadesGen("Noções de Informática", "Hardware e software"),
   ...portugues("cp", "Língua Portuguesa", (t) => t),
+  ...portuguesNiveis("cp", "Língua Portuguesa"),
   ...literatura("cp-lit", "Língua Portuguesa", "Literatura brasileira", OBRAS),
   ...escolasLit("cp-lit", "Língua Portuguesa", "Literatura brasileira"),
 ];
@@ -36,6 +38,7 @@ const NP_PORT: Record<string, string> = {
 };
 const npor: Gerador[] = [
   ...portugues("np", "Português", (t) => NP_PORT[t] ?? "Semântica e interpretação"),
+  ...portuguesNiveis("np", "Português"),
   ...literatura("np-l1", "Português", "Literatura: Quinhentismo ao Arcadismo", OBRAS.filter((o) => QUINHENTOS_AO_ARCADISMO.has(o.escola))),
   ...literatura("np-l2", "Português", "Literatura: Romantismo ao Simbolismo", OBRAS.filter((o) => ROMANTISMO_AO_SIMBOLISMO.has(o.escola))),
   ...escolasLit("np-l2", "Português", "Literatura: Romantismo ao Simbolismo"),
@@ -56,6 +59,7 @@ const EN_LING: Record<string, string> = {
 const EN_HIST: Record<string, string> = { "Território e regiões": "Geografia do Brasil", "Cartografia": "Geografia do Brasil", "Clima e relevo do Brasil": "Geografia do Brasil", "Biomas e domínios": "Geografia ambiental", "População e economia": "Geografia do Brasil" };
 const enem: Gerador[] = [
   ...portugues("en", "Linguagens", (t) => EN_LING[t] ?? "Gramática no texto"),
+  ...portuguesNiveis("en", "Linguagens").filter((g) => g.tema !== "Redação oficial"),
   ...literatura("en-lit", "Linguagens", "Literatura brasileira (ENEM)", OBRAS),
   ...escolasLit("en-lit", "Linguagens", "Literatura brasileira (ENEM)"),
   ...regencia("en-reg", "Linguagens", "Gramática no texto"),
