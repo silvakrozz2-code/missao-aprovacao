@@ -44,7 +44,7 @@ export function Questao() {
           <span className="flex items-center gap-1"><BotaoRascunho />
           {!sim && <Button size="icon" variant="ghost" aria-label="Ler a questão em voz alta" onClick={() => n.falar(`${q.enunciado}. ${q.alternativas.map((a, k) => `${LETRAS[k]}: ${a}`).join(". ")}`)}><Volume2 /></Button>}</span>
         </div>
-        <p className="text-lg leading-relaxed md:text-xl">{q.enunciado}</p>
+        <p className="whitespace-pre-line text-lg leading-relaxed md:text-xl">{q.enunciado}</p>
         <Tabela q={q} /><Figura fg={q.figura} />
         <Alternativas q={q} resp={respondida ? r : null} selecionada={sim ? r?.esc : undefined} onEscolher={(k) => n.responder(k)} />
         {sim && <div className="flex justify-between gap-2"><Button variant="secondary" disabled={!sess.i} onClick={n.anterior}><ArrowLeft /> Anterior</Button><Button onClick={n.proxima}>{ult ? "Entregar" : "Próxima"} <ArrowRight /></Button></div>}
