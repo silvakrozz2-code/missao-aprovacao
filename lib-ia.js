@@ -82,13 +82,13 @@ export async function responder(sistema, msgs) {
 }
 
 /* Voz natural: Gemini TTS devolve PCM 16 bits, 24 kHz, mono. Embrulhamos num WAV para o navegador tocar. */
-const VOZES = new Set(["Kore", "Aoede", "Leda", "Callirrhoe", "Charon", "Puck", "Fenrir", "Orus", "Sulafat", "Achird"]);
+const VOZES = new Set(["Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Leda", "Orus", "Aoede", "Callirrhoe", "Autonoe", "Enceladus", "Iapetus", "Umbriel", "Algieba", "Despina", "Erinome", "Algenib", "Rasalgethi", "Laomedeia", "Achernar", "Alnilam", "Schedar", "Gacrux", "Pulcherrima", "Achird", "Zubenelgenubi", "Vindemiatrix", "Sadachbia", "Sadaltager", "Sulafat"]);
 export async function falarGemini(texto, voz) {
-  const nome = VOZES.has(voz) ? voz : "Kore";
+  const nome = VOZES.has(voz) ? voz : "Achird";
   let d, erro;
   for (const modelo of ["gemini-2.5-flash-preview-tts", "gemini-2.5-pro-preview-tts"]) {
     try { d = await chamarGemini(modelo, {
-    contents: [{ parts: [{ text: `Leia em português do Brasil, com voz calma e natural de professor, no ritmo de uma conversa: ${texto}` }] }],
+    contents: [{ parts: [{ text: `Fale este texto em português do Brasil como um assistente de voz simpático conversando com um amigo: tom caloroso e descontraído, ritmo natural, entonação de conversa e não de leitura. Texto: ${texto}` }] }],
     generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: nome } } } },
     }); break; } catch (e) { erro = e; if (e.status === 403) break; }
   }
