@@ -28,10 +28,18 @@ const AG = Object.fromEntries(AGENTES.map((a) => [a.id, a]));
 const CHAVE_AG = "missao-aprovacao-tutor-agente", CHAVE_QUAL = "missao-aprovacao-tutor-qual-voz";
 /* Vozes pelo servidor. O valor salvo é "m:Nome" para as vozes neurais da Microsoft (Azure), "g:Nome" para Gemini
    ou "d:Nome" para uma voz do aparelho. Se a Microsoft não responder, o servidor usa o Gemini. */
-const VOZES_MS = [["Thalita", "feminina, natural"], ["Francisca", "feminina, clara"], ["Antonio", "masculina"]];
-const VOZES_IA = [["Achird", "amigável"], ["Sulafat", "calorosa"], ["Zephyr", "animada"], ["Aoede", "leve"], ["Puck", "alegre"], ["Laomedeia", "animada"], ["Algieba", "suave"], ["Vindemiatrix", "gentil"], ["Charon", "informativa, grave"], ["Orus", "firme, grave"], ["Iapetus", "clara, grave"], ["Kore", "firme"]];
+const VOZES_IA = [["Sulafat", "calorosa"], ["Achird", "amigável"], ["Zephyr", "animada"], ["Aoede", "leve"], ["Puck", "alegre"], ["Laomedeia", "animada"], ["Algieba", "suave"], ["Vindemiatrix", "gentil"], ["Charon", "informativa, grave"], ["Orus", "firme, grave"], ["Iapetus", "clara, grave"], ["Kore", "firme"]];
 const AMOSTRA = "Oi! Eu sou seu tutor. Vamos estudar juntos? Me pergunta o que quiser.";
-let qualVoz = (() => { try { return localStorage.getItem(CHAVE_QUAL) || "m:Thalita"; } catch { return "m:Thalita"; } })();
+/* Escolha salva pela pessoa. Sem escolha, usa a voz padrão (abaixo). */
+let escolhida = (() => { try { const v = localStorage.getItem(CHAVE_QUAL) || ""; return /^[gd]:/.test(v) ? v : ""; } catch { return ""; } })();
+/* Padrão: no Edge do PC, a voz Natural da Microsoft do próprio navegador (Thalita, Francisca ou Antonio). Fora dele, a voz do Gemini mais calorosa. */
+function vozPadrao() {
+  const vs = (typeof window !== "undefined" && window.speechSynthesis?.getVoices?.()) || [];
+  const nat = vs.filter((v) => /^pt[-_]BR/i.test(v.lang) && /Microsoft .*Online \(Natural\)/i.test(v.name));
+  const v = ["Thalita", "Francisca", "Antonio"].map((x) => nat.find((y) => y.name.includes(x))).find(Boolean) || nat[0];
+  return v ? "d:" + v.name : "g:Sulafat";
+}
+const qualVozAgora = () => escolhida || vozPadrao();
 const TINTA = "#0f1513";
 
 /* ───────── voz: primeiro a voz natural do servidor; se não der, a voz do aparelho */
@@ -76,8 +84,6 @@ function PainelVoz({ voz, escolher, falando }) {
   return (
     <section aria-label="Escolher a voz" className="flex flex-col gap-3 rounded-2xl border border-risco bg-folha p-3">
       <p className="text-sm text-apagado">Toque numa voz para ouvir uma amostra. A que você tocar por último fica escolhida.</p>
-      <div><h3 className="mb-1.5 text-sm font-bold">Vozes da Microsoft (as do Edge)</h3>
-        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{VOZES_MS.map(([nome, d]) => <Opcao key={nome} v={"m:" + nome} nome={nome} desc={d} />)}</div></div>
       <div><h3 className="mb-1.5 text-sm font-bold">Vozes de IA (Gemini)</h3>
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{VOZES_IA.map(([nome, d]) => <Opcao key={nome} v={"g:" + nome} nome={nome} desc={d} />)}</div></div>
       {!!disp.length && <div><h3 className="mb-1.5 text-sm font-bold">Vozes naturais deste aparelho</h3>
@@ -165,8 +171,9 @@ export default function Tutor() {
   const [fase, setFase] = useState("ouvindo");
   const [parcial, setParcial] = useState("");
   const [ultima, setUltima] = useState("");
-  const [voz, setVoz] = useState(qualVoz);
-  const escolherVoz = (v) => { qualVoz = v; setVoz(v); try { localStorage.setItem(CHAVE_QUAL, v); } catch { /* ok */ } destravar(); ouvir("amostra-" + v, AMOSTRA); };
+  const [voz, setVoz] = useState(qualVozAgora);
+  useEffect(() => { const s = window.speechSynthesis; if (!s || escolhida) return; const at = () => { if (!escolhida) setVoz(vozPadrao()); }; at(); s.addEventListener?.("voiceschanged", at); return () => s.removeEventListener?.("voiceschanged", at); }, []);
+  const escolherVoz = (v) => { escolhida = v; setVoz(v); try { localStorage.setItem(CHAVE_QUAL, v); } catch { /* ok */ } destravar(); ouvir("amostra-" + v, AMOSTRA); };
   const fim = useRef(null); const rec = useRef(null); const vez = useRef(0); const enviarRef = useRef(null);
   const camRef = useRef(null); const galRef = useRef(null); const txtRef = useRef(null);
   const fimFalaRef = useRef(null); const modoRef = useRef(false); const silencios = useRef(0);
@@ -188,6 +195,7 @@ export default function Tutor() {
       fimFalaRef.current = fimFala;
       (async () => {
         try {
+          const qualVoz = qualVozAgora();
           if (qualVoz.startsWith("d:")) throw new Error("aparelho");
           const url = await audioNatural(texto, qualVoz);
           if (vez.current !== meu) return; // parou ou trocou enquanto carregava
@@ -195,7 +203,7 @@ export default function Tutor() {
           await player.play();
         } catch {
           if (vez.current !== meu) return;
-          const u = falarAparelho(limparTxt(texto), qualVoz.startsWith("d:") ? qualVoz.slice(2) : "", n); // voz do aparelho
+          const qv = qualVozAgora(); const u = falarAparelho(limparTxt(texto), qv.startsWith("d:") ? qv.slice(2) : "", n); // voz do aparelho
           if (u) { u.onend = fimFala; u.onerror = fimFala; } else fimFala();
         }
       })();
