@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Zap, RotateCcw, Target, Layers, Repeat, Moon, Volume2, Timer, Headphones, NotebookPen, ClipboardList } from "lucide-react";
+import { Zap, RotateCcw, Target, Layers, Repeat, Moon, Volume2, Timer, Headphones, NotebookPen, ClipboardList, Calculator } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress.jsx";
 import { Spotlight, NumberTicker, ShimmerButton } from "@/components/efeitos/efeitos.jsx";
 import { Cabeca } from "./comum.jsx";
 import { MODOS, abrirModo } from "./Modos.jsx";
+import { abrirContas } from "./Contas.jsx";
 
 const campo = "min-h-11 w-full rounded-xl border border-risco-2 bg-folha-2 px-3 text-giz disabled:opacity-50";
 
@@ -110,6 +111,7 @@ export default function Treinar({ revisar }) {
         <Atalho Ic={RotateCcw} titulo="Só os erros" desc="O que errou ou marcou como chute" onClick={() => n.iniciar(n.questoesFiltro(o, { erros: true, n: 30 }), "Só os erros")} />
         <Atalho Ic={Target} titulo="Pegadinhas da banca" desc="Só “alta chance”, matérias misturadas" onClick={() => n.iniciar(n.questoesFiltro(o, { alta: true, n: 10 }), "Pegadinhas da banca")} />
       </div>
+      <Atalho destaque Ic={Calculator} titulo="Treino de contas" desc="Soma, subtração, multiplicação, divisão e mais: 10 níveis cada, com tempo e vidas" onClick={() => abrirContas(null, n.ui.ir)} />
       {fracos.some((f) => f.s.t) && <div className="flex flex-wrap items-center gap-2"><span className="mao text-lg text-marca">seus pontos fracos:</span>{fracos.filter((f) => f.s.t).map((f) => <Badge key={f.tema} tone="erro">{f.tema}</Badge>)}</div>}
       <section className="flex flex-col gap-3" aria-labelledby="outras"><h2 id="outras" className="inline-flex items-baseline gap-2 text-xl font-bold">Outras formas de estudar <span className="mao text-base font-normal text-marca">sem cara de lista</span></h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{MODOS.map((m) => <Atalho key={m.id} Ic={m.Ic} titulo={m.nome} desc={m.desc} onClick={() => abrirModo(m.id, n.ui.ir)} />)}</div></section>
