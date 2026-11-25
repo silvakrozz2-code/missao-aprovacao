@@ -1,4 +1,4 @@
-import { CalendarDays, ChartColumn, MessageCircle, Timer, FileClock, Moon, NotebookPen, Scale, Dumbbell, Settings, HardDriveDownload, ChevronRight, SunMoon, LogOut, Headphones, Trophy } from "lucide-react";
+import { CalendarDays, ChartColumn, MessageCircle, Timer, FileClock, Moon, NotebookPen, Scale, Dumbbell, Settings, HardDriveDownload, ChevronRight, SunMoon, LogOut, Headphones, Trophy, FlaskConical } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { Spotlight } from "@/components/efeitos/efeitos.jsx";
 import { Button } from "@/components/ui/button.jsx";
@@ -8,7 +8,7 @@ export default function Mais() {
   const n = useNucleo(); const S = n.getS(); const o = S.obj;
   const grupos = [
     ["Planejar", [["plano", CalendarDays, "Mapa da semana", "Planner montado com as suas horas livres"], ["desempenho", ChartColumn, "Desempenho", "Acerto por matéria, tema, simulados e medalhas"], ["vespera", Moon, "Modo véspera", "Só resumos, números e checklist do dia"]]],
-    ["Estudar", [["#ouvir", Headphones, "Ouvir", "Resumos e lei seca em voz alta"], ["#caderno", NotebookPen, "Caderno", "Anotações e marca-texto por tema"], ["#desafios", Trophy, "Desafios e ranking", "Metas da semana e suas melhores semanas"], ["tutor", MessageCircle, "Tutor", "Tire dúvidas e veja o que estudar"], ["foco", Timer, "Foco (pomodoro)", "Timer 25/5 com ciclos"], ["simulado", FileClock, "Simulado", "Prova completa ou mini"], ["erros", NotebookPen, "Caderno de erros", "Seus erros com o motivo que você anotou"], ["leis", Scale, "Leis e links", "Texto oficial e videoaulas"], ...(o === "npor" ? [["taf", Dumbbell, "TAF", "Registre corrida, flexão, abdominal e barra"]] : [])]],
+    ["Estudar", [["#lab", FlaskConical, "Laboratório", "Matemática para mexer, com tutor explicando"], ["#ouvir", Headphones, "Ouvir", "Resumos e lei seca em voz alta"], ["#caderno", NotebookPen, "Caderno", "Anotações e marca-texto por tema"], ["#desafios", Trophy, "Desafios e ranking", "Metas da semana e suas melhores semanas"], ["tutor", MessageCircle, "Tutor", "Tire dúvidas e veja o que estudar"], ["foco", Timer, "Foco (pomodoro)", "Timer 25/5 com ciclos"], ["simulado", FileClock, "Simulado", "Prova completa ou mini"], ["erros", NotebookPen, "Caderno de erros", "Seus erros com o motivo que você anotou"], ["leis", Scale, "Leis e links", "Texto oficial e videoaulas"], ...(o === "npor" ? [["taf", Dumbbell, "TAF", "Registre corrida, flexão, abdominal e barra"]] : [])]],
     ["Configurar", [["ajustes", Settings, "Ajustes", "Datas das provas, tom, fonte e tema"], ["backup", HardDriveDownload, "Backup", "Passe seu progresso do PC para o celular"]]],
   ];
   const claro = S.cfg.tema === "light";

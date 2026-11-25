@@ -4,6 +4,7 @@
 
 import { extraConcurso, extraCardsConcurso } from "./dados-concurso-extra.js";
 import { curitibaConcurso, curitibaCardsConcurso } from "./dados-concurso-curitiba.js";
+import { reforcoConcurso, reforcoCardsConcurso } from "./dados-concurso-reforco.js";
 
 const P = "https://www.planalto.gov.br/ccivil_03/";
 
@@ -693,6 +694,7 @@ export const concurso = {
     ["LGPD (Cap. IV)", 2, "Para o tratamento de dados pessoais, o órgão público deve, conforme o art. 23 da LGPD:", ["Indicar um encarregado pelas operações de tratamento", "Vender os dados a empresas parceiras", "Manter os dados em formato fechado e não interoperável", "Dispensar qualquer publicidade sobre o tratamento", "Transferir os dados ao exterior sem regras"], 0, "Art. 23, III. O art. 25 exige formato interoperável e estruturado.", false],
     ...extraConcurso,
     ...curitibaConcurso,
+    ...reforcoConcurso,
   ],
 
   cards: [
@@ -746,5 +748,6 @@ export const concurso = {
     ["Acordo: perderam acento", "ideia, heroico, assembleia, jiboia, voo, enjoo, leem, deem, para (verbo).", "Acentuação"],
     ...extraCardsConcurso,
     ...curitibaCardsConcurso,
+    ...reforcoCardsConcurso,
   ],
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown, Play, Check, Flame, BookOpen, PencilLine, GraduationCap } from "lucide-react";
+import { FlaskConical, ChevronDown, Play, Check, Flame, BookOpen, PencilLine, GraduationCap } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
@@ -9,6 +9,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog.jsx";
 import { IconeMat } from "@/icones.jsx";
 import { Cabeca } from "./comum.jsx";
 import { Resumo } from "./Tema.jsx";
+import { labDoTema } from "@/lab/index.jsx";
+import { abrirLab } from "./Lab.jsx";
 
 export { Resumo };
 
@@ -31,12 +33,14 @@ function Fase({ t, st, prox, ultimo, onResumo }) {
           {s.t ? <Badge tone={s.p < .6 ? "erro" : "certo"} className="num">{Math.round(s.p * 100)}% de {s.t}</Badge> : <Badge>não iniciado</Badge>}
           <Badge>{gen ? "questões infinitas" : `${nq} questões`}</Badge>
           {tr && <Badge tone="giz"><Play className="fill-current" />{tr[0][1]}</Badge>}
+          {labDoTema(t) && <Badge tone="marca"><FlaskConical />interativo</Badge>}
           {n.P().aprendeu?.[t] && <Badge tone="certo"><Check />aula feita</Badge>}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant={prox ? "default" : "secondary"} onClick={() => n.abrirAprender(t)}><GraduationCap />Aprender</Button>
           {temQ && <Button size="sm" variant="secondary" onClick={() => n.iniciar(n.questoesDoTema(o, t, 0, 10), t)}><PencilLine />Treinar</Button>}
           <Button size="sm" variant="ghost" onClick={() => onResumo(t)}><BookOpen />Resumo e mapa</Button>
+          {labDoTema(t) && <Button size="sm" variant="ghost" onClick={() => abrirLab(labDoTema(t).id, n.ui.ir)}><FlaskConical />Mexer</Button>}
         </div>
       </div>
     </li>
@@ -50,6 +54,7 @@ export default function Trilha() {
   const [resumo, setResumo] = useState(null);
   return (
     <div className="flex flex-col gap-5">
+      <Button variant="secondary" className="self-start" onClick={() => n.ui.ir("lab")}><FlaskConical /> Laboratório de matemática</Button>
       <Cabeca eyebrow={d.nome} titulo="Trilha do edital">Cada tema é uma fase. Em Aprender você vê o vídeo no minuto certo, a ideia em cartões, um exemplo resolvido e questões do básico ao nível prova. A fase fica verde com 80% de acerto em 10 ou mais questões.</Cabeca>
       <div className="flex flex-col gap-3">
         {d.materias.map((m) => {

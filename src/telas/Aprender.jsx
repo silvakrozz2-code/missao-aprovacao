@@ -8,6 +8,9 @@ import { Card, Badge } from "@/components/ui/card.jsx";
 import { Progress } from "@/components/ui/progress.jsx";
 import { Faiscas, ShimmerButton, NumberTicker } from "@/components/efeitos/efeitos.jsx";
 import { BotaoRascunho } from "@/components/Rascunho.jsx";
+import { TrechoVideo } from "@/components/Video.jsx";
+import { labDoTema } from "@/lab/index.jsx";
+import { Bancada } from "./Lab.jsx";
 import { Alternativas, Tabela, Figura, Passos, Macete, Veredito, LETRAS } from "./comum.jsx";
 
 const IC = [Play, Lightbulb, BookOpenCheck, PencilLine, Mountain, Trophy];
@@ -32,11 +35,15 @@ function Trecho({ tr, k, tema }) {
   const n = useNucleo(); const [v, ini, fim, oque] = tr; const vid = n.VIDEOS[v];
   const key = `${tema}|${k}`, visto = !!(n.P().assistidos || {})[key];
   return (
-    <div className={cn("grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border p-3 sm:grid-cols-[auto_minmax(0,1fr)_auto]", visto ? "border-certo/50 bg-certo-suave" : "border-risco bg-folha-2")}>
-      <a href={n.ytLink(v, ini)} target="_blank" rel="noopener" aria-label={`Assistir ${oque} a partir de ${ini}`} className="group flex items-center gap-2 rounded-xl bg-giz px-3 py-2 text-lousa transition-transform hover:scale-[1.03]">
-        <Play className="size-4 fill-current" /><span className="num font-bold">{ini}</span></a>
-      <div className="min-w-0"><b className="block leading-snug">{oque}</b><span className="text-sm text-apagado">{vid.canal} · {vid.titulo}{fim ? ` · trecho de ${n.durTxt(ini, fim)} (até ${fim})` : ""}</span></div>
-      <Button size="sm" variant={visto ? "secondary" : "ghost"} aria-pressed={visto} className="col-span-2 justify-self-start sm:col-span-1" onClick={() => n.acaoAprender("ap-assisti", { key })}>{visto ? <><Check /> Assistido</> : "Marcar assistido"}</Button>
+    <div className={cn("flex flex-col gap-3 rounded-2xl border p-3", visto ? "border-certo/50 bg-certo-suave" : "border-risco bg-folha-2")}>
+      <TrechoVideo v={v} ini={ini} fim={fim} titulo={oque} />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="min-w-0"><b className="block leading-snug">{oque}</b><span className="text-sm text-apagado">{vid.canal} · {vid.titulo}{fim ? ` · trecho de ${n.durTxt(ini, fim)}` : ""}</span></div>
+        <div className="flex flex-wrap gap-1.5">
+          <Button asChild size="sm" variant="ghost"><a href={n.ytLink(v, ini)} target="_blank" rel="noopener" aria-label={`Abrir no YouTube: ${oque}`}>Abrir no YouTube</a></Button>
+          <Button size="sm" variant={visto ? "secondary" : "outline"} aria-pressed={visto} onClick={() => n.acaoAprender("ap-assisti", { key })}>{visto ? <><Check /> Assistido</> : "Marcar assistido"}</Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -68,7 +75,9 @@ function Entender({ ap, o }) {
   const trs = n.TRECHOS[tema] || []; const base = trs.find((t) => t[4] === 1) || trs[0];
   const temQ = n.BANCO[o].some((q) => q.tema === tema) || n.genDoObj[o].some((g) => g.tema === tema);
   const [nota, setNota] = useState(() => n.P().notas[tema] || "");
-  return (
+  const lab = labDoTema(tema);
+  return (<>
+    {lab && <div className="flex flex-col gap-2"><span className="mao text-xl text-marca">mexa você mesmo antes de ler</span><Bancada item={lab} /></div>}
     <Card className="gap-4">
       <div className="flex items-center justify-between"><span className="text-sm font-bold text-apagado">Cartão <span className="num">{ap.card + 1}</span> de <span className="num">{cards.length}</span></span>
         <Button size="sm" variant="ghost" onClick={() => n.acaoAprender("ap-falar")}><Volume2 /> Ouvir</Button></div>
@@ -79,7 +88,8 @@ function Entender({ ap, o }) {
             className="rounded-2xl border border-risco bg-[linear-gradient(170deg,var(--folha-2),var(--folha))] p-5 text-xl leading-relaxed md:text-2xl">{cards[ap.card]}</motion.p>
         </AnimatePresence>
       </div>
-      {ap.travou && <Macete rot="Outro jeito de ver">{r.macete}{base && <><br /><Button asChild size="sm" variant="secondary" className="mt-2"><a href={n.ytLink(base[0], base[1])} target="_blank" rel="noopener"><Play className="fill-current" /> Ver em vídeo a partir de {base[1]}</a></Button></>}</Macete>}
+      {ap.travou && <Macete rot="Outro jeito de ver">{r.macete}</Macete>}
+      {ap.travou && base && <TrechoVideo v={base[0]} ini={base[1]} fim={base[2]} titulo={`${tema}: a explicação em vídeo`} />}
       {ult && (<>
         <Macete>{r.macete}</Macete>
         <label className="flex flex-col gap-1.5 text-sm font-bold">Explique com as suas palavras, como se fosse ensinar alguém
@@ -91,7 +101,7 @@ function Entender({ ap, o }) {
         <Button onClick={() => n.acaoAprender(ult ? "ap-prox" : "ap-card-ok")}>{ult ? (temQ ? "Ver um exemplo resolvido" : "Concluir aula") : "Entendi, próximo"}</Button>
       </div>
     </Card>
-  );
+  </>);
 }
 
 function Resolvido({ ap }) {
