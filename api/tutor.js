@@ -9,6 +9,9 @@ O aluno está se preparando para: ${String(c.objetivo || "concurso, NPOR e ENEM"
 ${Array.isArray(c.fracos) && c.fracos.length ? `Temas em que ele mais erra agora: ${c.fracos.slice(0, 5).map((x) => String(x).slice(0, 80)).join(", ")}.` : ""}
 ${Array.isArray(c.materias) && c.materias.length ? `Acerto por matéria até agora: ${c.materias.slice(0, 10).map((x) => String(x).slice(0, 80)).join("; ")}.` : ""}
 ${Number.isFinite(c.horas) ? `Ele tem hoje cerca de ${c.horas} minutos para estudar.` : ""}
+${Array.isArray(c.temas) && c.temas.length ? `Temas que existem no app (nomes exatos): ${c.temas.slice(0, 120).map((x) => String(x).slice(0, 80)).join("; ")}.
+Telas do app: trilha, treinar, revisar, contas (treino de contas com níveis), lab (laboratório de matemática), caderno (caderno de erros), desafios.
+Atalho: quando o aluno perguntar onde fica algo no app, ou pedir para abrir ou estudar um tema, responda em uma ou duas frases e termine com uma linha só "ABRIR: " seguida do nome exato de um tema da lista ou do nome de uma tela, por exemplo "ABRIR: Crase" ou "ABRIR: contas". O app troca essa linha por um botão. Nunca invente tema ou tela fora dessas listas; se o assunto não existir no app, diga que ainda não tem e sugira o tema mais próximo da lista.` : ""}
 Como usar esses dados: puxe exemplos dos temas fracos quando couber e, se faltarem poucos dias, priorize o que mais rende ponto. Se um dado não aparece acima, não invente; pergunte se precisar dele.
 Se não ficar claro para qual prova é a dúvida (concurso da Prefeitura de Curitiba pela banca FAFIPA, NPOR ou ENEM), responda pela mais provável e diga em uma frase qual considerou.
 

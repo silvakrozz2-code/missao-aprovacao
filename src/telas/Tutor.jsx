@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Mic2, Send, Mic, MicOff, Volume2, Square, Trash2, Sparkles, Loader2, GraduationCap, CheckCheck, PenLine, Search, Shield, CalendarCheck, HelpCircle, Users, Plus, Camera, Image as ImageIcon, ChevronDown, AudioLines, X, Check } from "lucide-react";
+import { Mic2, Send, Mic, MicOff, Volume2, Square, Trash2, Sparkles, Loader2, GraduationCap, CheckCheck, PenLine, Search, Shield, CalendarCheck, HelpCircle, Users, ArrowRight, Plus, Camera, Image as ImageIcon, ChevronDown, AudioLines, X, Check } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
 import { Cabeca } from "./comum.jsx";
-import { vozesPt, ehNatural } from "@/nucleo/vozes.js";
+import { abrirContas } from "./Contas.jsx";
+import { vozesPt } from "@/nucleo/vozes.js";
 
 /* Agentes de estudo. O papel de cada um (o "prompt") fica no servidor, em lib-agentes.js. */
 export const AGENTES = [
@@ -25,21 +26,42 @@ export const AGENTES = [
     oi: "Vou montar seus próximos 7 dias usando seu desempenho no app, os dias até a prova e suas horas livres.", sug: ["Monta meu plano da semana", "O que eu estudo hoje?", "Estou atrasado, e agora?"] },
 ];
 const AG = Object.fromEntries(AGENTES.map((a) => [a.id, a]));
-const CHAVE_AG = "missao-aprovacao-tutor-agente", CHAVE_QUAL = "missao-aprovacao-tutor-qual-voz";
+const CHAVE_AG = "missao-aprovacao-tutor-agente", CHAVE_QUAL = "missao-aprovacao-tutor-voz-v2";
 /* Vozes pelo servidor. O valor salvo é "m:Nome" para as vozes neurais da Microsoft (Azure), "g:Nome" para Gemini
    ou "d:Nome" para uma voz do aparelho. Se a Microsoft não responder, o servidor usa o Gemini. */
 const VOZES_IA = [["Sulafat", "calorosa"], ["Achird", "amigável"], ["Zephyr", "animada"], ["Aoede", "leve"], ["Puck", "alegre"], ["Laomedeia", "animada"], ["Algieba", "suave"], ["Vindemiatrix", "gentil"], ["Charon", "informativa, grave"], ["Orus", "firme, grave"], ["Iapetus", "clara, grave"], ["Kore", "firme"]];
 const AMOSTRA = "Oi! Eu sou seu tutor. Vamos estudar juntos? Me pergunta o que quiser.";
 /* Escolha salva pela pessoa. Sem escolha, usa a voz padrão (abaixo). */
 let escolhida = (() => { try { const v = localStorage.getItem(CHAVE_QUAL) || ""; return /^[gd]:/.test(v) ? v : ""; } catch { return ""; } })();
-/* Padrão: no Edge do PC, a voz Natural da Microsoft do próprio navegador (Thalita, Francisca ou Antonio). Fora dele, a voz do Gemini mais calorosa. */
+/* Padrão: a voz mais natural do próprio aparelho, que não tem limite de uso (Thalita/Francisca no Edge,
+   Google português no Chrome e no Android, Luciana no iPhone). As vozes robóticas antigas do Windows ficam de fora.
+   Só se o aparelho não tiver uma voz boa é que usa o Gemini (Sulafat), que tem limite diário. */
+const robotica = (v) => /espeak|^Microsoft (Maria|Daniel|Helia)\b/i.test(v.name) && !/natural|online/i.test(v.name);
+const naturalMs = (v) => /microsoft/i.test(v.name) && /natural|online/i.test(v.name);
 function vozPadrao() {
-  const vs = (typeof window !== "undefined" && window.speechSynthesis?.getVoices?.()) || [];
-  const nat = vs.filter((v) => /^pt[-_]BR/i.test(v.lang) && /Microsoft .*Online \(Natural\)/i.test(v.name));
-  const v = ["Thalita", "Francisca", "Antonio"].map((x) => nat.find((y) => y.name.includes(x))).find(Boolean) || nat[0];
+  const pt = vozesPt().filter((x) => /^pt[-_]BR/i.test(x.lang) && !robotica(x));
+  const ms = pt.filter(naturalMs);
+  const v = ["Thalita", "Francisca", "Antonio"].map((k) => ms.find((x) => x.name.includes(k))).find(Boolean) || ms[0] || pt[0];
   return v ? "d:" + v.name : "g:Sulafat";
 }
 const qualVozAgora = () => escolhida || vozPadrao();
+
+/* ───────── atalhos: a IA termina a resposta com "ABRIR: <tema ou tela>" e o app mostra um botão que leva lá */
+const TELAS = { trilha: "Trilha", treinar: "Treinar", revisar: "Revisar", contas: "Treino de contas", lab: "Laboratório de matemática", caderno: "Caderno de erros", desafios: "Desafios", painel: "Painel" };
+const todosTemas = (n, o) => n.OBJS[o].materias.flatMap((m) => m.temas || []);
+const semAcento = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+function separarAtalhos(txt, n, o) {
+  const temas = todosTemas(n, o); const atalhos = [];
+  const limpo = txt.replace(/^\s*ABRIR:\s*(.+?)\s*$/gim, (_, alvo) => {
+    const a = semAcento(alvo.replace(/^tela\s+/i, ""));
+    const tela = Object.keys(TELAS).find((k) => k === a || semAcento(TELAS[k]) === a);
+    const tema = !tela && temas.find((t) => semAcento(t) === a);
+    if (tela) atalhos.push({ tipo: "tela", id: tela, nome: TELAS[tela] });
+    else if (tema) atalhos.push({ tipo: "tema", id: tema, nome: tema });
+    return "";
+  }).trim();
+  return { limpo, atalhos: atalhos.slice(0, 3) };
+}
 const TINTA = "#0f1513";
 
 /* ───────── voz: primeiro a voz natural do servidor; se não der, a voz do aparelho */
@@ -58,10 +80,17 @@ async function audioNatural(txt, qual) {
   if (!r.ok) throw new Error("sem voz");
   const url = URL.createObjectURL(await r.blob()); cacheAudio.set(chave, url); return url;
 }
+/* As vozes do navegador chegam aos poucos (no Edge, as Natural demoram). Espera até 2,5 s por elas. */
+function esperarVozes(ms = 2500) {
+  const s = typeof window !== "undefined" && window.speechSynthesis;
+  if (!s || s.getVoices().some((v) => /^pt/i.test(v.lang))) return Promise.resolve();
+  return new Promise((ok) => { const t = setTimeout(ok, ms); s.addEventListener?.("voiceschanged", function f() { if (s.getVoices().some((v) => /^pt/i.test(v.lang))) { clearTimeout(t); s.removeEventListener?.("voiceschanged", f); ok(); } }); });
+}
 /* Fala com uma voz do aparelho escolhida pelo nome (ou a melhor que houver) */
 function falarAparelho(txt, nome, n) {
   const ss = window.speechSynthesis; if (!ss) return null;
-  const v = nome && ss.getVoices().find((x) => x.name === nome);
+  let v = nome && ss.getVoices().find((x) => x.name === nome);
+  if (!v) { const p = vozPadrao(); v = p.startsWith("d:") && ss.getVoices().find((x) => x.name === p.slice(2)); }
   if (!v) return n.falar(txt);
   ss.cancel(); const u = new SpeechSynthesisUtterance(txt); u.voice = v; u.lang = v.lang; ss.speak(u); return u;
 }
@@ -74,8 +103,8 @@ function Rico({ txt }) {
 }
 
 function PainelVoz({ voz, escolher, falando }) {
-  const [disp, setDisp] = useState(() => vozesPt().filter(ehNatural).slice(0, 8));
-  useEffect(() => { const s = window.speechSynthesis; if (!s) return; const at = () => setDisp(vozesPt().filter(ehNatural).slice(0, 8)); at(); s.addEventListener?.("voiceschanged", at); return () => s.removeEventListener?.("voiceschanged", at); }, []);
+  const [disp, setDisp] = useState(() => vozesPt().filter((x) => !robotica(x)).slice(0, 8));
+  useEffect(() => { const s = window.speechSynthesis; if (!s) return; const at = () => setDisp(vozesPt().filter((x) => !robotica(x)).slice(0, 8)); at(); s.addEventListener?.("voiceschanged", at); return () => s.removeEventListener?.("voiceschanged", at); }, []);
   const Opcao = ({ v, nome, desc }) => (
     <button onClick={() => escolher(v)} aria-pressed={voz === v} className={cn("flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-sm", voz === v ? "border-acc bg-folha-2" : "border-risco bg-folha hover:border-risco-2")}>
       <span className="min-w-0"><b className="block truncate">{nome}</b><span className="text-apagado">{desc}</span></span>
@@ -84,11 +113,11 @@ function PainelVoz({ voz, escolher, falando }) {
   return (
     <section aria-label="Escolher a voz" className="flex flex-col gap-3 rounded-2xl border border-risco bg-folha p-3">
       <p className="text-sm text-apagado">Toque numa voz para ouvir uma amostra. A que você tocar por último fica escolhida.</p>
-      <div><h3 className="mb-1.5 text-sm font-bold">Vozes de IA (Gemini)</h3>
-        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{VOZES_IA.map(([nome, d]) => <Opcao key={nome} v={"g:" + nome} nome={nome} desc={d} />)}</div></div>
-      {!!disp.length && <div><h3 className="mb-1.5 text-sm font-bold">Vozes naturais deste aparelho</h3>
+      {!!disp.length && <div><h3 className="mb-1.5 text-sm font-bold">Vozes deste aparelho (sem limite de uso)</h3>
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{disp.map((v) => <Opcao key={v.name} v={"d:" + v.name} nome={v.name.replace(/^Microsoft /, "").replace(/ Online \(Natural\).*/, "").replace(/ - .*$/, "")} desc={/natural|online/i.test(v.name) ? "Microsoft, grátis" : "do aparelho"} />)}</div>
         <p className="mt-1.5 text-xs text-apagado">No navegador Edge aparecem as vozes Francisca, Thalita e Antonio, que são as mais naturais de graça.</p></div>}
+      <div><h3 className="mb-1.5 text-sm font-bold">Vozes de IA (Gemini, com limite diário)</h3>
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{VOZES_IA.map(([nome, d]) => <Opcao key={nome} v={"g:" + nome} nome={nome} desc={d} />)}</div></div>
     </section>
   );
 }
@@ -171,9 +200,10 @@ export default function Tutor() {
   const [fase, setFase] = useState("ouvindo");
   const [parcial, setParcial] = useState("");
   const [ultima, setUltima] = useState("");
-  const [voz, setVoz] = useState(qualVozAgora);
-  useEffect(() => { const s = window.speechSynthesis; if (!s || escolhida) return; const at = () => { if (!escolhida) setVoz(vozPadrao()); }; at(); s.addEventListener?.("voiceschanged", at); return () => s.removeEventListener?.("voiceschanged", at); }, []);
-  const escolherVoz = (v) => { escolhida = v; setVoz(v); try { localStorage.setItem(CHAVE_QUAL, v); } catch { /* ok */ } destravar(); ouvir("amostra-" + v, AMOSTRA); };
+  const [, setVozesProntas] = useState(0);
+  useEffect(() => { const s = window.speechSynthesis; if (!s) return; const at = () => setVozesProntas((x) => x + 1); s.addEventListener?.("voiceschanged", at); const t = setTimeout(at, 1500); return () => { clearTimeout(t); s.removeEventListener?.("voiceschanged", at); }; }, []);
+  const voz = qualVozAgora(); // calculada a cada tela, para pegar as vozes que chegaram depois
+  const escolherVoz = (v) => { escolhida = v; setVozesProntas((x) => x + 1); try { localStorage.setItem(CHAVE_QUAL, v); } catch { /* ok */ } destravar(); ouvir("amostra-" + v, AMOSTRA); };
   const fim = useRef(null); const rec = useRef(null); const vez = useRef(0); const enviarRef = useRef(null);
   const camRef = useRef(null); const galRef = useRef(null); const txtRef = useRef(null);
   const fimFalaRef = useRef(null); const modoRef = useRef(false); const silencios = useRef(0);
@@ -195,6 +225,8 @@ export default function Tutor() {
       fimFalaRef.current = fimFala;
       (async () => {
         try {
+          if (!escolhida) await esperarVozes();
+          if (vez.current !== meu) return;
           const qualVoz = qualVozAgora();
           if (qualVoz.startsWith("d:")) throw new Error("aparelho");
           const url = await audioNatural(texto, qualVoz);
@@ -214,7 +246,8 @@ export default function Tutor() {
     const mats = n.OBJS[o].materias.map((m) => ({ m, s: n.statMat(o, m.id) })).filter((x) => x.s.t >= 3).map((x) => `${x.m.nome}: ${Math.round(x.s.p * 100)}% em ${x.s.t} questões`);
     const dia = (new Date().getDay() + 6) % 7;
     return { objetivo: n.OBJS[o].nome, dias: n.diasAte(S.cfg.datas[o]), horas: S.cfg.horas?.[dia],
-      fracos: n.temasFracos(o, 5).filter((x) => x.s.t).map((x) => `${x.tema} (${Math.round(x.s.p * 100)}%)`), materias: mats };
+      fracos: n.temasFracos(o, 5).filter((x) => x.s.t).map((x) => `${x.tema} (${Math.round(x.s.p * 100)}%)`), materias: mats,
+      temas: todosTemas(n, o) };
   }
 
   // Sem IA: só o professor e o plano usam o material do app como reserva; os outros agentes avisam com honestidade.
@@ -249,7 +282,8 @@ export default function Tutor() {
       const r = await fetch("/api/tutor", { method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mensagens, contexto: contexto(), agente: ag, ...(img ? { imagem: { mime: img.mime, b64: img.b64 } } : {}) }) });
       const d = await r.json().catch(() => ({}));
-      resp = r.ok && d.txt ? { txt: d.txt, ia: true, ag } : reserva(q, d.erro, !!img);
+      if (r.ok && d.txt) { const { limpo, atalhos } = separarAtalhos(d.txt, n, o); resp = { txt: limpo || d.txt, ia: true, ag, ...(atalhos.length ? { atalhos } : {}) }; }
+      else resp = reserva(q, d.erro, !!img);
     } catch {
       resp = reserva(q, "Sem internet agora.", !!img);
     }
@@ -377,6 +411,9 @@ export default function Tutor() {
                     {m.ia && <span className="inline-flex items-center gap-1 text-xs font-bold text-acc"><Sparkles className="size-3.5" /> {agente.nome}</span>}
                     <div className="flex flex-col gap-1"><Rico txt={m.txt} /></div>
                     {m.aviso && <span className="text-xs text-apagado">{m.aviso}</span>}
+                    {!!m.atalhos?.length && <div className="flex flex-wrap gap-2">{m.atalhos.map((a) => (
+                      <Button key={a.tipo + a.id} size="sm" onClick={() => { parar(); if (a.tipo === "tema") n.abrirAprender(a.id); else if (a.id === "contas") abrirContas(null, n.ui.ir); else n.ui.ir(a.id); }}>
+                        <ArrowRight /> {a.tipo === "tema" ? `Abrir aula: ${a.nome}` : `Ir para ${a.nome}`}</Button>))}</div>}
                     <Button size="sm" variant="ghost" className="self-start" onClick={() => { destravar(); ouvir(m.k, m.txt); }}>{falando === m.k ? <><Square /> Parar</> : <><Volume2 /> Ouvir</>}</Button>
                   </>}
                 </div>
