@@ -12,7 +12,7 @@ import { concurso } from "./dados-concurso.js";
 import { npor } from "./dados-npor.js";
 import { enem } from "./dados-enem.js";
 import { resumosFaltantes } from "./resumos-faltantes.js";
-import { fala } from "./vozes.js";
+import { fala, ehServidor, vozSalva, lerTexto, pararLeitura } from "./vozes.js";
 
 /* ───────────────────────── ponte com a interface */
 export const ui = { ir: () => {}, toast: () => {}, limparRascunho: () => {}, rolarExplicacao: () => {}, topo: () => {} };
@@ -433,6 +433,7 @@ function bip() {
 /* ───────────────────────── voz */
 function falar(txt) {
   try {
+    if (ehServidor(vozSalva())) { pararLeitura(); lerTexto(txt, voz.vel || 1); return; }
     const ss = window.speechSynthesis; if (!ss) { toast("Leitura em voz alta não está disponível neste navegador."); return; }
     if (ss.speaking) { ss.cancel(); return; }
     const u = fala(txt, voz.vel || 1);

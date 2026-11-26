@@ -37,3 +37,46 @@ export function fala(txt, vel = 1) {
 }
 // As vozes chegam de forma assíncrona em alguns navegadores.
 if (ss()) { try { ss().getVoices(); ss().addEventListener?.("voiceschanged", () => ss().getVoices()); } catch (e) { /* */ } }
+
+/* ───────── Vozes de IA naturais, lidas pelo servidor (/api/voz). Aparecem sempre no seletor;
+   só tocam de verdade quando a OPENAI_API_KEY está no servidor. Sem ela, a leitura cai para a voz do aparelho. */
+export const VOZES_SERVIDOR = [
+  ["openai:marin", "Marin · IA natural (OpenAI)"],
+  ["openai:cedar", "Cedar · IA natural (OpenAI)"],
+  ["openai:coral", "Coral · IA natural (OpenAI)"],
+];
+export const ehServidor = (sel) => /^(openai:|ms:)/.test(sel || "");
+
+const cacheIA = new Map();
+const playerIA = typeof Audio !== "undefined" ? new Audio() : null;
+let destravado = false;
+const SILENCIO = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+// Chame num toque do usuário para o celular deixar tocar o áudio que chega depois do fetch.
+export function destravarLeitura() { if (destravado || !playerIA) return; destravado = true; try { playerIA.src = SILENCIO; playerIA.play().catch(() => {}); } catch { /* ok */ } }
+export function pararLeitura() { try { ss()?.cancel(); } catch { /* */ } try { playerIA?.pause(); } catch { /* */ } }
+const limparTxt = (t) => String(t).replace(/\*\*/g, "").replace(/^[-•#]+\s*/gm, "").trim();
+
+/* Lê um texto com a voz escolhida. Se for voz de IA, busca no servidor e toca; senão usa a voz do aparelho.
+   onend roda ao terminar ou se a fala não começar. Use pararLeitura() para interromper. */
+export async function lerTexto(txt, vel = 1, onend) {
+  const fim = () => onend?.();
+  const sel = vozSalva();
+  const texto = limparTxt(txt);
+  if (ehServidor(sel) && playerIA) {
+    try {
+      const chave = sel + "|" + texto;
+      let url = cacheIA.get(chave);
+      if (!url) {
+        const r = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto, voz: sel }) });
+        if (!r.ok) throw new Error("ia");
+        url = URL.createObjectURL(await r.blob()); cacheIA.set(chave, url);
+      }
+      playerIA.src = url; playerIA.playbackRate = vel; playerIA.onended = fim; playerIA.onerror = fim;
+      await playerIA.play();
+      return;
+    } catch { /* cai para a voz do aparelho */ }
+  }
+  const s = ss();
+  if (!s) { fim(); return; }
+  s.cancel(); const u = fala(texto, vel); u.onend = fim; u.onerror = fim; s.speak(u);
+}
