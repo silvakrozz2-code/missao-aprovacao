@@ -8,7 +8,7 @@ import { Card, Badge } from "@/components/ui/card.jsx";
 import { Progress } from "@/components/ui/progress.jsx";
 import { NumberTicker } from "@/components/efeitos/efeitos.jsx";
 import { Cabeca } from "./comum.jsx";
-import { fala, vozesPt, melhorVoz, salvarVoz, ehNatural } from "@/nucleo/vozes.js";
+import { vozesPt, melhorVoz, salvarVoz, ehNatural, vozSalva, lerTexto, pararLeitura, destravarLeitura, ehServidor, VOZES_SERVIDOR } from "@/nucleo/vozes.js";
 import { Resumo, resumoQualquer } from "./Tema.jsx";
 
 const campo = "min-h-11 w-full rounded-xl border border-risco-2 bg-folha-2 px-3 text-giz";
@@ -30,16 +30,15 @@ export function Ouvir() {
   vivo.current.fila = fila; vivo.current.vel = vel;
   const ss = typeof window !== "undefined" ? window.speechSynthesis : null;
   const falarEm = (k) => {
-    const f = vivo.current.fila; if (!ss || k >= f.length) { parar(); return; }
-    vivo.current.i = k; setI(k); ss.cancel();
-    const u = fala(f[k].rot === "Tema" ? `Tema: ${f[k].txt}.` : f[k].txt, vivo.current.vel);
-    u.onend = () => { if (vivo.current.tocando && vivo.current.i === k) setTimeout(() => vivo.current.tocando && falarEm(k + 1), f[k].rot === "Pergunta" ? 1800 : 350); };
-    ss.speak(u);
+    const f = vivo.current.fila; if (k >= f.length) { parar(); return; }
+    vivo.current.i = k; setI(k); pararLeitura();
+    const texto = f[k].rot === "Tema" ? `Tema: ${f[k].txt}.` : f[k].txt;
+    lerTexto(texto, vivo.current.vel, () => { if (vivo.current.tocando && vivo.current.i === k) setTimeout(() => vivo.current.tocando && falarEm(k + 1), f[k].rot === "Pergunta" ? 1800 : 350); });
   };
-  const tocar = () => { if (!ss) { n.ui.toast("Este navegador não tem leitura em voz alta."); return; } vivo.current.tocando = true; setTocando(true); falarEm(vivo.current.i); };
-  const parar = () => { vivo.current.tocando = false; setTocando(false); ss?.cancel(); };
+  const tocar = () => { if (!ss && !ehServidor(vozSalva())) { n.ui.toast("Este navegador não tem leitura em voz alta."); return; } destravarLeitura(); vivo.current.tocando = true; setTocando(true); falarEm(vivo.current.i); };
+  const parar = () => { vivo.current.tocando = false; setTocando(false); pararLeitura(); };
   const pular = (k) => { const x = Math.max(0, Math.min(fila.length - 1, k)); vivo.current.i = x; setI(x); if (vivo.current.tocando) falarEm(x); };
-  useEffect(() => () => { vivo.current.tocando = false; window.speechSynthesis?.cancel(); }, []);
+  useEffect(() => () => { vivo.current.tocando = false; pararLeitura(); }, []);
   const trocar = (f) => { parar(); setFonte(f); const nf = montarFila(n, o, f); setFila(nf); vivo.current.i = 0; setI(0); };
   const atual = fila[i];
   return (
@@ -72,23 +71,30 @@ export function Ouvir() {
 }
 
 export function EscolherVoz() {
-  const [lista, setLista] = useState(() => vozesPt()); const [atual, setAtual] = useState(() => melhorVoz()?.name || "");
+  const [lista, setLista] = useState(() => vozesPt()); const [atual, setAtual] = useState(() => vozSalva() || melhorVoz()?.name || "");
   useEffect(() => {
     const s = window.speechSynthesis; if (!s) return;
-    const at = () => { const l = vozesPt(); setLista(l); setAtual((a) => a || melhorVoz()?.name || ""); };
+    const at = () => { const l = vozesPt(); setLista(l); setAtual((a) => a || vozSalva() || melhorVoz()?.name || ""); };
     at(); s.addEventListener?.("voiceschanged", at); return () => s.removeEventListener?.("voiceschanged", at);
   }, []);
-  const testar = () => { const s = window.speechSynthesis; if (!s) return; s.cancel(); s.speak(fala("Oi! Esta é a voz que vai ler os seus resumos. Vamos estudar?")); };
+  const testar = () => { destravarLeitura(); pararLeitura(); lerTexto("Oi! Esta é a voz que vai ler os seus resumos. Vamos estudar?", 1); };
   const temNatural = lista.some(ehNatural);
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-risco bg-folha p-4">
       <label className="flex flex-col gap-1.5 text-sm font-bold">Voz da leitura
         <select className={campo} value={atual} onChange={(e) => { setAtual(e.target.value); salvarVoz(e.target.value); }}>
           {!lista.length && <option value="">Voz padrão do aparelho</option>}
-          {lista.map((v, k) => <option key={v.name} value={v.name}>{v.name.replace(/^Microsoft /, "").replace(/ - Portuguese \(Brazil\)/, "")}{ehNatural(v) ? " · natural" : " · robótica"}</option>)}
+          <optgroup label="Vozes de IA (OpenAI — precisam da chave)">
+            {VOZES_SERVIDOR.map(([v, r]) => <option key={v} value={v}>{r}</option>)}
+          </optgroup>
+          <optgroup label="Vozes deste aparelho">
+            {lista.map((v) => <option key={v.name} value={v.name}>{v.name.replace(/^Microsoft /, "").replace(/ - Portuguese \(Brazil\)/, "")}{ehNatural(v) ? " · natural" : " · robótica"}</option>)}
+          </optgroup>
         </select></label>
       <div className="flex flex-wrap items-center gap-2"><Button size="sm" variant="secondary" onClick={testar}><Play /> Testar voz</Button>
-        {!temNatural && <span className="text-sm text-apagado">Este navegador só tem voz robótica. Para voz natural, igual à de assistente, abra o app no Microsoft Edge (vozes Francisca e Antonio). No celular, instale as vozes do Google em Configurações › Texto para fala.</span>}</div>
+        {ehServidor(atual)
+          ? <span className="text-sm text-apagado">As vozes da OpenAI só tocam quando a chave OPENAI_API_KEY (paga) está na Vercel. Sem ela, a leitura usa a voz do aparelho. Na lista longa do "Ouvir", cada trecho lido pela OpenAI gera custo.</span>
+          : !temNatural && <span className="text-sm text-apagado">Este navegador só tem voz robótica. Para voz natural, igual à de assistente, abra o app no Microsoft Edge (vozes Francisca e Antonio). No celular, instale as vozes do Google em Configurações › Texto para fala.</span>}</div>
     </div>
   );
 }
