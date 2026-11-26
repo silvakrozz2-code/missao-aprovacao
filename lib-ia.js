@@ -19,7 +19,10 @@ async function chamarGemini(modelo, corpo) {
     signal: AbortSignal.timeout(25000),
   });
   if (r.ok) return r.json();
-  if (r.status === 429) throw falha(429, "O limite grátis do Gemini acabou por agora. Tente de novo daqui a pouco.");
+  const corpoErro = await r.text().catch(() => "");
+  console.warn(`[gemini] ${modelo} HTTP ${r.status}: ${corpoErro.slice(0, 400)}`);
+  if (r.status === 429 || /RESOURCE_EXHAUSTED|quota/i.test(corpoErro)) throw falha(429, "O limite grátis do Gemini acabou por agora. Tente de novo daqui a pouco.");
+  if (r.status === 400 && /API[_ ]?key|API_KEY_INVALID|PERMISSION_DENIED/i.test(corpoErro)) throw falha(403, "A GEMINI_API_KEY não é válida. Gere uma nova no Google AI Studio e atualize na Vercel.");
   if (r.status === 401 || r.status === 403) throw falha(403, "A chave do Gemini não foi aceita. Confira a GEMINI_API_KEY na Vercel.");
   if (r.status === 404) throw falha(404, "Modelo do Gemini indisponível.");
   throw falha(502, "O Gemini não respondeu agora. Tente de novo em instantes.");

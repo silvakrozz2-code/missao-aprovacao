@@ -25,6 +25,7 @@ export async function POST(req) {
     const wav = await falarGemini(texto, voz.startsWith("ms:") ? "" : voz);
     return new Response(wav, { headers: { "Content-Type": "audio/wav", ...cache } });
   } catch (e) {
+    console.warn(`[voz] Gemini falhou (voz=${voz}): ${e.status || ""} ${e.publico || e.message}`);
     return json({ erro: e.publico || "Voz indisponível agora." }, e.status || 502);
   }
 }
