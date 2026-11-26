@@ -6,7 +6,7 @@ import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
 import { Cabeca } from "./comum.jsx";
 import { abrirContas } from "./Contas.jsx";
-import { vozesPt } from "@/nucleo/vozes.js";
+import { vozesPt, VOZ_IA_PADRAO } from "@/nucleo/vozes.js";
 
 /* Agentes de estudo. O papel de cada um (o "prompt") fica no servidor, em lib-agentes.js. */
 export const AGENTES = [
@@ -47,7 +47,7 @@ function vozPadrao() {
   const v = ["Thalita", "Francisca", "Antonio"].map((k) => ms.find((x) => x.name.includes(k))).find(Boolean) || ms[0] || pt[0];
   return v ? "d:" + v.name : "g:Sulafat";
 }
-const qualVozAgora = () => escolhida || vozPadrao();
+const qualVozAgora = () => escolhida || VOZ_IA_PADRAO;
 
 /* ───────── atalhos: a IA termina a resposta com "ABRIR: <tema ou tela>" e o app mostra um botão que leva lá */
 const TELAS = { trilha: "Trilha", treinar: "Treinar", revisar: "Revisar", contas: "Treino de contas", lab: "Laboratório de matemática", caderno: "Caderno de erros", desafios: "Desafios", painel: "Painel" };

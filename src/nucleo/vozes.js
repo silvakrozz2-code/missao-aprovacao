@@ -40,12 +40,26 @@ if (ss()) { try { ss().getVoices(); ss().addEventListener?.("voiceschanged", () 
 
 /* ───────── Vozes de IA naturais, lidas pelo servidor (/api/voz). Aparecem sempre no seletor;
    só tocam de verdade quando a OPENAI_API_KEY está no servidor. Sem ela, a leitura cai para a voz do aparelho. */
+// Vozes de IA grátis do Gemini (pt-BR, com limite diário do plano grátis). Sulafat é a padrão.
+export const VOZES_GEMINI = [
+  ["g:Sulafat", "Sulafat · IA grátis (padrão)"],
+  ["g:Achird", "Achird · IA grátis"],
+  ["g:Zephyr", "Zephyr · IA grátis"],
+  ["g:Aoede", "Aoede · IA grátis"],
+];
+// Vozes de IA da OpenAI (pagas, precisam da OPENAI_API_KEY no servidor).
 export const VOZES_SERVIDOR = [
   ["openai:marin", "Marin · IA natural (OpenAI)"],
   ["openai:cedar", "Cedar · IA natural (OpenAI)"],
   ["openai:coral", "Coral · IA natural (OpenAI)"],
 ];
-export const ehServidor = (sel) => /^(openai:|ms:)/.test(sel || "");
+// Voz de IA padrão: grátis, natural, sem cartão. Toca pelo Gemini; se o limite diário estourar, cai para a voz do aparelho.
+export const VOZ_IA_PADRAO = "g:Sulafat";
+export const ehServidor = (sel) => /^(openai:|ms:|g:)/.test(sel || "");
+// A voz em uso: a escolhida pela pessoa ou, sem escolha, a voz de IA grátis padrão.
+export const vozAtual = () => vozSalva() || VOZ_IA_PADRAO;
+// Converte o valor salvo para o que o /api/voz espera (o Gemini recebe o nome cru, sem o prefixo "g:").
+const vozParaServidor = (sel) => (sel.startsWith("g:") ? sel.slice(2) : sel);
 
 const cacheIA = new Map();
 const playerIA = typeof Audio !== "undefined" ? new Audio() : null;
@@ -60,14 +74,14 @@ const limparTxt = (t) => String(t).replace(/\*\*/g, "").replace(/^[-•#]+\s*/gm
    onend roda ao terminar ou se a fala não começar. Use pararLeitura() para interromper. */
 export async function lerTexto(txt, vel = 1, onend) {
   const fim = () => onend?.();
-  const sel = vozSalva();
+  const sel = vozAtual();
   const texto = limparTxt(txt);
   if (ehServidor(sel) && playerIA) {
     try {
       const chave = sel + "|" + texto;
       let url = cacheIA.get(chave);
       if (!url) {
-        const r = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto, voz: sel }) });
+        const r = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto, voz: vozParaServidor(sel) }) });
         if (!r.ok) throw new Error("ia");
         url = URL.createObjectURL(await r.blob()); cacheIA.set(chave, url);
       }
