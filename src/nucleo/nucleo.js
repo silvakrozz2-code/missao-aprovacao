@@ -109,7 +109,9 @@ function carregar() {
   } catch (e) { /* sem armazenamento */ }
   return PADRAO();
 }
-function salvar() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignora */ } }
+let _sync = null;
+export function registrarSync(fn) { _sync = fn; }
+function salvar() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignora */ } if (_sync) { try { _sync(S); } catch (e) { /* nuvem opcional */ } } }
 const P = () => S.p[S.obj];
 const D = () => OBJS[S.obj];
 function dia(iso = hoje()) { return (S.dias[iso] ||= { q: 0, a: 0, cards: 0, pomo: 0, min: 0, obj: {} }); }
