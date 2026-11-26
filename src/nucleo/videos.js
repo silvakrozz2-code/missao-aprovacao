@@ -4,6 +4,9 @@
 export const VIDEOS = {
   m12: { id: "_EmywnyCOM0", titulo: "Toda a Matemática do ENEM em 12 horas", canal: "Pedro Assaad", dur: "12h" },
   fund: { id: "JQfJMJrV5Bk", titulo: "Matemática do Ensino Fundamental (pra quem tem muita dificuldade)", canal: "Pedro Assaad", dur: "11h58" },
+  papg: { id: "oDuC3kY7hC8", titulo: "Progressões: PA e PG do zero, para o ENEM e vestibulares", canal: "Videoaula (YouTube)", dur: "aula" },
+  conj: { id: "0aUEDxYjZg8", titulo: "Conjuntos: introdução (representação, pertinência e inclusão)", canal: "Videoaula (YouTube)", dur: "aula" },
+  logica: { id: "vdZSCwhC8Z0", titulo: "Raciocínio Lógico: introdução à lógica proposicional e conectivos", canal: "Videoaula (YouTube)", dur: "20min" },
 };
 // tema → lista de trechos [video, inicio, fim|null, o que mostra, nivel 1=base 2=aprofunda]
 export const TRECHOS = {
@@ -23,7 +26,7 @@ export const TRECHOS = {
   "Noções de direção": [["m12", "4:21:38", "4:28:18", "Plano cartesiano (apoio)", 1]],
   "Funções e equações": [["m12", "3:04:57", "3:30:47", "Equações e sistemas", 1], ["m12", "4:28:18", "5:07:29", "Função do 1º grau", 2], ["m12", "5:28:43", "6:26:18", "Função do 2º grau", 2]],
   "Sequências": [["m12", "5:07:29", "5:21:05", "Sequências", 2]],
-  "Progressões": [["m12", "5:07:29", "5:21:05", "Sequências (base)", 1], ["m12", "5:21:05", "5:28:43", "Progressão aritmética", 2]],
+  "Progressões": [["m12", "5:07:29", "5:21:05", "Sequências (base)", 1], ["m12", "5:21:05", "5:28:43", "Progressão aritmética (PA)", 2], ["papg", "0:00", null, "PA e PG do zero, numa aula só", 2]],
   "Áreas e superfícies": [["m12", "6:26:18", "6:30:21", "Geometria plana: introdução", 1], ["m12", "7:09:42", "7:24:29", "Quadriláteros e áreas", 2]],
   "Teorema de Tales": [["m12", "6:30:21", "7:09:42", "Triângulos (base para Tales e Pitágoras)", 2]],
   "Circunferência": [["m12", "7:43:52", "8:08:22", "Circunferência e círculo", 2]],
@@ -31,4 +34,17 @@ export const TRECHOS = {
   "Análise combinatória": [["m12", "8:59:56", "10:01:16", "Análise combinatória", 2]],
   "Probabilidade": [["m12", "10:01:16", "10:39:27", "Probabilidade", 2]],
   "Logaritmos e exponencial": [["m12", "10:39:27", "11:08:24", "Logaritmo", 2]],
+  // ───────── Temas completados com videoaula (Matemática a fundo)
+  "Potenciação e radiciação": [["m12", "0:20:09", "0:33:58", "Potenciação e radiciação (com frações e decimais)", 1], ["m12", "6:10:24", "6:16:01", "Revisão de potências", 2]],
+  "Equação do 1º grau": [["m12", "3:05:10", "3:14:48", "Álgebra: equação do 1º grau", 1], ["m12", "3:14:48", "3:26:10", "Questões de equação do 1º grau", 2], ["m12", "3:26:10", "3:30:57", "Inequações", 2]],
+  "Equação do 2º grau": [["m12", "5:28:40", "5:55:39", "Equação do 2º grau e Bhaskara", 1], ["m12", "5:55:39", "6:03:50", "Exercícios do 2º grau", 2]],
+  "Sistemas lineares": [["m12", "3:05:10", "3:26:10", "Álgebra: montar e resolver sistemas", 1], ["m12", "4:10:33", "4:21:45", "Matrizes (apoio para sistemas)", 2]],
+  "Conjuntos": [["conj", "0:00", null, "Conjuntos: representação, pertinência e inclusão", 1]],
+  "Lógica proposicional": [["logica", "0:00", null, "Proposições, conectivos e princípios da lógica", 1]],
+  "Teorema de Pitágoras": [["m12", "6:26:12", "6:51:03", "Triângulos e teorema de Pitágoras", 1], ["m12", "6:51:03", "6:59:20", "Semelhança de triângulos", 2]],
+  "Ângulos e polígonos": [["m12", "6:26:12", "6:51:03", "Triângulos e seus ângulos", 1], ["m12", "7:09:57", "7:19:50", "Quadriláteros, losangos e trapézios", 1], ["m12", "7:38:15", "7:42:24", "Hexágono e polígonos regulares", 2]],
+  "Trigonometria": [["m12", "7:24:31", "7:32:27", "Trigonometria no triângulo retângulo", 1], ["m12", "7:32:27", "7:38:15", "Exercícios de trigonometria", 2], ["m12", "11:23:11", "11:34:09", "Funções trigonométricas", 2]],
+  "Matrizes e determinantes": [["m12", "4:10:33", "4:14:29", "Matrizes e determinantes", 1], ["m12", "4:14:29", "4:21:45", "Questões de matrizes", 2]],
+  "Geometria analítica": [["m12", "4:21:45", "4:28:13", "Plano cartesiano (base)", 1], ["m12", "11:34:09", "11:57:33", "Geometria analítica: ponto, reta e distância", 2]],
+  "Unidades de medida": [["m12", "2:21:54", "2:33:25", "Conversão de unidades", 1], ["m12", "2:33:25", "2:36:32", "Questões de conversão", 2], ["m12", "2:36:32", "2:43:30", "Notação científica", 2]],
 };
