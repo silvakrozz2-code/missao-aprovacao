@@ -26,13 +26,16 @@ export const AGENTES = [
     oi: "Vou montar seus próximos 7 dias usando seu desempenho no app, os dias até a prova e suas horas livres.", sug: ["Monta meu plano da semana", "O que eu estudo hoje?", "Estou atrasado, e agora?"] },
 ];
 const AG = Object.fromEntries(AGENTES.map((a) => [a.id, a]));
-const CHAVE_AG = "missao-aprovacao-tutor-agente", CHAVE_QUAL = "missao-aprovacao-tutor-voz-v2";
-/* Vozes pelo servidor. O valor salvo é "m:Nome" para as vozes neurais da Microsoft (Azure), "g:Nome" para Gemini
-   ou "d:Nome" para uma voz do aparelho. Se a Microsoft não responder, o servidor usa o Gemini. */
+const CHAVE_AG = "missao-aprovacao-tutor-agente", CHAVE_QUAL = "missao-aprovacao-tutor-voz-v2", CHAVE_VEL = "missao-aprovacao-tutor-vel";
+/* Vozes pelo servidor. O valor salvo é "o:nome" para as vozes da OpenAI, "m:Nome" para as vozes neurais da Microsoft (Azure),
+   "g:Nome" para Gemini ou "d:Nome" para uma voz do aparelho. Se a voz do servidor não responder, o app cai para a do aparelho. */
+const VOZES_OPENAI = [["marin", "IA natural"], ["cedar", "IA natural"], ["coral", "IA natural"]];
 const VOZES_IA = [["Sulafat", "calorosa"], ["Achird", "amigável"], ["Zephyr", "animada"], ["Aoede", "leve"], ["Puck", "alegre"], ["Laomedeia", "animada"], ["Algieba", "suave"], ["Vindemiatrix", "gentil"], ["Charon", "informativa, grave"], ["Orus", "firme, grave"], ["Iapetus", "clara, grave"], ["Kore", "firme"]];
+const VELOCIDADES = [0.75, 1, 1.25, 1.5];
 const AMOSTRA = "Oi! Eu sou seu tutor. Vamos estudar juntos? Me pergunta o que quiser.";
 /* Escolha salva pela pessoa. Sem escolha, usa a voz padrão (abaixo). */
-let escolhida = (() => { try { const v = localStorage.getItem(CHAVE_QUAL) || ""; return /^[gd]:/.test(v) ? v : ""; } catch { return ""; } })();
+let escolhida = (() => { try { const v = localStorage.getItem(CHAVE_QUAL) || ""; return /^[gdo]:/.test(v) ? v : ""; } catch { return ""; } })();
+let velocidade = (() => { try { const v = parseFloat(localStorage.getItem(CHAVE_VEL)); return VELOCIDADES.includes(v) ? v : 1; } catch { return 1; } })();
 /* Padrão: a voz mais natural do próprio aparelho, que não tem limite de uso (Thalita/Francisca no Edge,
    Google português no Chrome e no Android, Luciana no iPhone). As vozes robóticas antigas do Windows ficam de fora.
    Só se o aparelho não tiver uma voz boa é que usa o Gemini (Sulafat), que tem limite diário. */
@@ -73,7 +76,7 @@ function destravar() { if (destravado || !player) return; destravado = true; try
 const novoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const limparTxt = (t) => t.replace(/\*\*/g, "").replace(/^[-•#]+\s*/gm, "");
 async function audioNatural(txt, qual) {
-  const voz = qual.startsWith("m:") ? "ms:" + qual.slice(2) : qual.slice(2);
+  const voz = qual.startsWith("m:") ? "ms:" + qual.slice(2) : qual.startsWith("o:") ? "openai:" + qual.slice(2) : qual.slice(2);
   const chave = voz + "|" + txt;
   if (cacheAudio.has(chave)) return cacheAudio.get(chave);
   const r = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto: limparTxt(txt), voz }) });
@@ -87,12 +90,12 @@ function esperarVozes(ms = 2500) {
   return new Promise((ok) => { const t = setTimeout(ok, ms); s.addEventListener?.("voiceschanged", function f() { if (s.getVoices().some((v) => /^pt/i.test(v.lang))) { clearTimeout(t); s.removeEventListener?.("voiceschanged", f); ok(); } }); });
 }
 /* Fala com uma voz do aparelho escolhida pelo nome (ou a melhor que houver) */
-function falarAparelho(txt, nome, n) {
+function falarAparelho(txt, nome, n, vel = 1) {
   const ss = window.speechSynthesis; if (!ss) return null;
   let v = nome && ss.getVoices().find((x) => x.name === nome);
   if (!v) { const p = vozPadrao(); v = p.startsWith("d:") && ss.getVoices().find((x) => x.name === p.slice(2)); }
   if (!v) return n.falar(txt);
-  ss.cancel(); const u = new SpeechSynthesisUtterance(txt); u.voice = v; u.lang = v.lang; ss.speak(u); return u;
+  ss.cancel(); const u = new SpeechSynthesisUtterance(txt); u.voice = v; u.lang = v.lang; u.rate = vel; ss.speak(u); return u;
 }
 function pararTudo() { try { player?.pause(); } catch { /* ok */ } try { window.speechSynthesis?.cancel(); } catch { /* sem voz */ } }
 
@@ -102,7 +105,7 @@ function Rico({ txt }) {
     <p key={i} className={cn(!linha.trim() && "h-2")}>{linha.replace(/^#+\s*/, "").split(/(\*\*[^*]+\*\*)/g).map((p, k) => p.startsWith("**") && p.endsWith("**") ? <b key={k} className="text-giz">{p.slice(2, -2)}</b> : p)}</p>));
 }
 
-function PainelVoz({ voz, escolher, falando }) {
+function PainelVoz({ voz, escolher, falando, vel, trocarVel }) {
   const [disp, setDisp] = useState(() => vozesPt().filter((x) => !robotica(x)).slice(0, 8));
   useEffect(() => { const s = window.speechSynthesis; if (!s) return; const at = () => setDisp(vozesPt().filter((x) => !robotica(x)).slice(0, 8)); at(); s.addEventListener?.("voiceschanged", at); return () => s.removeEventListener?.("voiceschanged", at); }, []);
   const Opcao = ({ v, nome, desc }) => (
@@ -113,6 +116,18 @@ function PainelVoz({ voz, escolher, falando }) {
   return (
     <section aria-label="Escolher a voz" className="flex flex-col gap-3 rounded-2xl border border-risco bg-folha p-3">
       <p className="text-sm text-apagado">Toque numa voz para ouvir uma amostra. A que você tocar por último fica escolhida.</p>
+      <div>
+        <h3 className="mb-1.5 text-sm font-bold">Velocidade da leitura</h3>
+        <div role="group" aria-label="Velocidade da leitura" className="flex gap-1.5">
+          {VELOCIDADES.map((x) => (
+            <button key={x} onClick={() => trocarVel(x)} aria-pressed={vel === x}
+              className={cn("flex-1 rounded-xl border px-2 py-1.5 text-sm font-bold", vel === x ? "border-acc bg-folha-2 text-giz" : "border-risco bg-folha text-apagado hover:border-risco-2")}>
+              {x === 1 ? "1x" : x + "x"}</button>))}
+        </div>
+      </div>
+      <div><h3 className="mb-1.5 text-sm font-bold">Vozes de IA da OpenAI (naturais, precisam da chave)</h3>
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{VOZES_OPENAI.map(([nome, d]) => <Opcao key={nome} v={"o:" + nome} nome={nome[0].toUpperCase() + nome.slice(1)} desc={d} />)}</div>
+        <p className="mt-1.5 text-xs text-apagado">Só tocam de verdade quando a chave OPENAI_API_KEY (paga) está na Vercel. Sem ela, o app usa a voz do aparelho.</p></div>
       {!!disp.length && <div><h3 className="mb-1.5 text-sm font-bold">Vozes deste aparelho (sem limite de uso)</h3>
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{disp.map((v) => <Opcao key={v.name} v={"d:" + v.name} nome={v.name.replace(/^Microsoft /, "").replace(/ Online \(Natural\).*/, "").replace(/ - .*$/, "")} desc={/natural|online/i.test(v.name) ? "Microsoft, grátis" : "do aparelho"} />)}</div>
         <p className="mt-1.5 text-xs text-apagado">No navegador Edge aparecem as vozes Francisca, Thalita e Antonio, que são as mais naturais de graça.</p></div>}
@@ -204,6 +219,8 @@ export default function Tutor() {
   useEffect(() => { const s = window.speechSynthesis; if (!s) return; const at = () => setVozesProntas((x) => x + 1); s.addEventListener?.("voiceschanged", at); const t = setTimeout(at, 1500); return () => { clearTimeout(t); s.removeEventListener?.("voiceschanged", at); }; }, []);
   const voz = qualVozAgora(); // calculada a cada tela, para pegar as vozes que chegaram depois
   const escolherVoz = (v) => { escolhida = v; setVozesProntas((x) => x + 1); try { localStorage.setItem(CHAVE_QUAL, v); } catch { /* ok */ } destravar(); ouvir("amostra-" + v, AMOSTRA); };
+  const [vel, setVel] = useState(velocidade);
+  const trocarVel = (x) => { velocidade = x; setVel(x); try { localStorage.setItem(CHAVE_VEL, String(x)); } catch { /* ok */ } destravar(); ouvir("amostra-vel", AMOSTRA); };
   const fim = useRef(null); const rec = useRef(null); const vez = useRef(0); const enviarRef = useRef(null);
   const camRef = useRef(null); const galRef = useRef(null); const txtRef = useRef(null);
   const fimFalaRef = useRef(null); const modoRef = useRef(false); const silencios = useRef(0);
@@ -232,10 +249,11 @@ export default function Tutor() {
           const url = await audioNatural(texto, qualVoz);
           if (vez.current !== meu) return; // parou ou trocou enquanto carregava
           player.src = url; player.onended = fimFala; player.onerror = fimFala;
+          player.playbackRate = velocidade;
           await player.play();
         } catch {
           if (vez.current !== meu) return;
-          const qv = qualVozAgora(); const u = falarAparelho(limparTxt(texto), qv.startsWith("d:") ? qv.slice(2) : "", n); // voz do aparelho
+          const qv = qualVozAgora(); const u = falarAparelho(limparTxt(texto), qv.startsWith("d:") ? qv.slice(2) : "", n, velocidade); // voz do aparelho
           if (u) { u.onend = fimFala; u.onerror = fimFala; } else fimFala();
         }
       })();
@@ -391,7 +409,7 @@ export default function Tutor() {
           <Button size="sm" variant="secondary" aria-expanded={vozPainel} onClick={() => setVozPainel((x) => !x)}><Mic2 /> Voz: {voz.slice(2).replace(/^Microsoft /, "").replace(/ Online \(Natural\).*/, "")}</Button>
           {!!chat.length && <Button size="sm" variant="ghost" onClick={limpar}><Trash2 /> Limpar conversa</Button>}
         </div>
-        {vozPainel && <PainelVoz voz={voz} escolher={escolherVoz} falando={falando} />}
+        {vozPainel && <PainelVoz voz={voz} escolher={escolherVoz} falando={falando} vel={vel} trocarVel={trocarVel} />}
 
         <section aria-label="Conversa" aria-live="polite" className="flex min-h-[36vh] flex-col gap-3">
           {!chat.length && (

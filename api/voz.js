@@ -1,7 +1,8 @@
 // POST /api/voz  { texto, voz } → áudio com voz natural.
+// voz "openai:marin" (ou cedar, coral) usa as vozes da OpenAI (chave OPENAI_API_KEY, só no servidor).
 // voz "ms:Thalita" (ou Francisca, Antonio) usa as vozes neurais da Microsoft pelo Azure Speech; se não der, cai para o Gemini.
 // Qualquer outro nome é uma voz do Gemini. Se nada funcionar, o app usa a voz do aparelho.
-import { logado, json, falarGemini, falarAzure } from "../lib-ia.js";
+import { logado, json, falarGemini, falarAzure, falarOpenAI } from "../lib-ia.js";
 
 export async function POST(req) {
   if (!(await logado(req))) return json({ erro: "Entre na sua conta." }, 401);
@@ -10,6 +11,11 @@ export async function POST(req) {
   if (!texto) return json({ erro: "Sem texto." }, 400);
   const voz = String(corpo.voz || "");
   const cache = { "Cache-Control": "private, max-age=86400" };
+  if (voz.startsWith("openai:")) {
+    if (!process.env.OPENAI_API_KEY) return json({ erro: "Voz da OpenAI não configurada." }, 501);
+    try { return new Response(await falarOpenAI(texto, voz.slice(7)), { headers: { "Content-Type": "audio/mpeg", ...cache } }); }
+    catch (e) { return json({ erro: e.publico || "Voz da OpenAI indisponível agora." }, e.status || 502); }
+  }
   if (voz.startsWith("ms:") && process.env.AZURE_SPEECH_KEY) {
     try { return new Response(await falarAzure(texto, voz.slice(3)), { headers: { "Content-Type": "audio/mpeg", ...cache } }); }
     catch (e) { console.warn(`[voz] Azure: ${e.status || e.message}`); }
