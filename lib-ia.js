@@ -85,6 +85,26 @@ export async function responder(sistema, msgs) {
   throw falha(503, "Todas as IAs grátis estão no limite agora. Tente de novo daqui a pouco.");
 }
 
+/* Vozes da OpenAI (Marin, Cedar, Coral) pela API oficial de áudio. Modelo gpt-4o-mini-tts, que traz as vozes mais novas.
+   É paga e precisa de OPENAI_API_KEY na Vercel. Sem a chave, o /api/voz devolve 501 e o app usa a voz do aparelho. */
+export const VOZES_OPENAI = new Set(["marin", "cedar", "coral", "alloy", "ash", "ballad", "echo", "fable", "nova", "onyx", "sage", "shimmer", "verse"]);
+export async function falarOpenAI(texto, voz) {
+  const chave = process.env.OPENAI_API_KEY;
+  if (!chave) throw falha(501, "Vozes da OpenAI não configuradas.");
+  const nome = VOZES_OPENAI.has(String(voz).toLowerCase()) ? String(voz).toLowerCase() : "coral";
+  const r = await fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${chave}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "gpt-4o-mini-tts", voice: nome, input: texto, response_format: "mp3",
+      instructions: "Fale em português do Brasil, com tom caloroso e natural de conversa, ritmo tranquilo e boa dicção." }),
+    signal: AbortSignal.timeout(25000),
+  });
+  if (r.ok) return Buffer.from(await r.arrayBuffer());
+  if (r.status === 401 || r.status === 403) throw falha(403, "A chave da OpenAI não foi aceita. Confira a OPENAI_API_KEY na Vercel.");
+  if (r.status === 429) throw falha(429, "O limite da OpenAI foi atingido. Tente de novo daqui a pouco ou confira os créditos.");
+  throw falha(r.status === 400 ? 400 : 502, `OpenAI ${r.status}`);
+}
+
 /* Vozes neurais da Microsoft (Thalita, Francisca, Antonio) pela API oficial do Azure Speech.
    O plano grátis (F0) dá 500 mil caracteres por mês. Precisa de AZURE_SPEECH_KEY e AZURE_SPEECH_REGION na Vercel. */
 export const VOZES_MS = { Thalita: "pt-BR-ThalitaMultilingualNeural", Francisca: "pt-BR-FranciscaNeural", Antonio: "pt-BR-AntonioNeural" };
