@@ -71,24 +71,26 @@ export function pararLeitura() { try { ss()?.cancel(); } catch { /* */ } try { p
 const limparTxt = (t) => String(t).replace(/\*\*/g, "").replace(/^[-•#]+\s*/gm, "").trim();
 
 /* Lê um texto com a voz escolhida. Se for voz de IA, busca no servidor e toca; senão usa a voz do aparelho.
-   onend roda ao terminar ou se a fala não começar. Use pararLeitura() para interromper. */
-export async function lerTexto(txt, vel = 1, onend) {
+   onend roda ao terminar ou se a fala não começar. onerro(motivo) roda quando a voz de IA falha e cai para o aparelho
+   (motivo = mensagem do servidor, ex. limite diário). Use pararLeitura() para interromper. */
+export async function lerTexto(txt, vel = 1, onend, onerro) {
   const fim = () => onend?.();
   const sel = vozAtual();
   const texto = limparTxt(txt);
   if (ehServidor(sel) && playerIA) {
+    let motivo = "";
     try {
       const chave = sel + "|" + texto;
       let url = cacheIA.get(chave);
       if (!url) {
         const r = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto, voz: vozParaServidor(sel) }) });
-        if (!r.ok) throw new Error("ia");
+        if (!r.ok) { motivo = await r.json().then((d) => d && d.erro).catch(() => ""); throw new Error("ia"); }
         url = URL.createObjectURL(await r.blob()); cacheIA.set(chave, url);
       }
       playerIA.src = url; playerIA.playbackRate = vel; playerIA.onended = fim; playerIA.onerror = fim;
       await playerIA.play();
       return;
-    } catch { /* cai para a voz do aparelho */ }
+    } catch { onerro?.(motivo); /* cai para a voz do aparelho */ }
   }
   const s = ss();
   if (!s) { fim(); return; }
