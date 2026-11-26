@@ -52,7 +52,7 @@ export default function Rascunho() {
         <motion.div role="dialog" aria-modal="true" aria-label="Rascunho" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[80]">
           <div className="absolute inset-0 bg-[color-mix(in_srgb,var(--lousa)_78%,transparent)] backdrop-blur-[1px]" />
           <canvas ref={cv} className="absolute inset-0 size-full touch-none" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} />
-          <span className="mao pointer-events-none absolute left-4 top-[calc(14px+env(safe-area-inset-top))] text-lg text-marca">rascunho: a questão continua por baixo</span>
+          <span className="mao pointer-events-none absolute left-4 top-[calc(14px+env(safe-area-inset-top))] text-lg text-marca">Rascunho · a questão continua por baixo</span>
           <motion.div initial={{ y: 30 }} animate={{ y: 0 }} className="vidro absolute inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] mx-auto flex max-w-md flex-wrap items-center justify-center gap-2 rounded-2xl border border-risco-2 p-2">
             {CORES.map(([nome, c]) => (
               <button key={c} type="button" aria-label={`Caneta ${nome}`} aria-pressed={!borracha && cor === c} onClick={() => { setCor(c); setBorracha(false); }}

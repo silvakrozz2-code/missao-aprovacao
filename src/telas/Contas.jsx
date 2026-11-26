@@ -94,7 +94,7 @@ function Caminho({ id, prog, voltar, jogar }) {
           const livre = liberado(prog, id, i), eh = i === atual && livre;
           return (
             <li key={i} className="flex flex-col items-center gap-1.5" style={{ transform: `translateX(${desloc[i % desloc.length]}%)` }}>
-              {eh && <motion.span initial={{ y: 4, opacity: 0 }} animate={{ y: [0, -4, 0], opacity: 1 }} transition={{ y: { repeat: Infinity, duration: 1.6 } }} className="mao rounded-xl border border-risco-2 bg-folha-2 px-3 py-0.5 text-sm font-bold text-giz">{e[i] ? "melhorar" : "começar"}</motion.span>}
+              {eh && <motion.span initial={{ y: 4, opacity: 0 }} animate={{ y: [0, -4, 0], opacity: 1 }} transition={{ y: { repeat: Infinity, duration: 1.6 } }} className="mao rounded-xl border border-risco-2 bg-folha-2 px-3 py-0.5 text-sm font-bold text-giz">{e[i] ? "Melhorar" : "Começar"}</motion.span>}
               <button disabled={!livre} onClick={() => jogar(i)} aria-label={`Nível ${i + 1}: ${nv.nome}${livre ? "" : " (bloqueado)"}`}
                 className={cn("num grid size-[4.5rem] place-items-center rounded-full text-2xl font-bold transition-transform active:translate-y-1", livre ? "shadow-[inset_0_-6px_0_rgba(0,0,0,.22)] hover:scale-105" : "bg-folha-3 text-apagado", eh && "ring-4 ring-offset-4 ring-offset-lousa")}
                 style={livre ? { background: t.cor, color: TINTA, ...(eh ? { "--tw-ring-color": t.cor } : {}) } : undefined}>
@@ -260,7 +260,7 @@ function Fim({ r, estrelas, recorde, xp, repetir, proximo, voltar }) {
   const temProx = r.venceu && r.nivel + 1 < tr.niveis.length;
   return (
     <Card className="mx-auto w-full max-w-md items-center gap-4 py-8 text-center">
-      <span className="mao text-2xl text-marca">{r.venceu ? (estrelas === 3 ? "perfeito!" : "nível concluído!") : "acabaram as vidas"}</span>
+      <span className="mao text-2xl text-marca">{r.venceu ? (estrelas === 3 ? "Perfeito!" : "Nível concluído!") : "Acabaram as vidas"}</span>
       <h1 className="font-display text-3xl font-extrabold leading-tight">{tr.nome} · nível <span className="num">{r.nivel + 1}</span></h1>
       {r.venceu ? <Estrelas n={estrelas} tam="size-12" animar /> : <Heart className="size-12 text-erro" />}
       {recorde && <span className="rounded-full bg-marca px-3 py-0.5 text-sm font-bold text-marca-tinta">Novo recorde de estrelas</span>}

@@ -141,7 +141,7 @@ function Escolher({ o, atual, escolher }) {
   const lista = [...AGENTES].sort((a, b) => (b.obj === o) - (a.obj === o));
   return (
     <section aria-label="Agentes de estudo" className="flex flex-col gap-2">
-      <h2 className="mao text-xl text-marca">escolha seu agente</h2>
+      <h2 className="mao text-xl text-marca">Escolha seu agente</h2>
       <div className="grid gap-2 sm:grid-cols-2">
         {lista.map((a) => (
           <button key={a.id} onClick={() => escolher(a.id)} aria-pressed={atual === a.id}

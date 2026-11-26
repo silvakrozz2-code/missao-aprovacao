@@ -1,5 +1,5 @@
 import { cn } from "@/lib-utils";
-export const Card = ({ className, ...p }) => <section className={cn("rounded-2xl border border-risco bg-folha p-5 flex flex-col gap-3 min-w-0", className)} {...p} />;
+export const Card = ({ className, ...p }) => <section className={cn("rounded-2xl border border-risco bg-folha p-4 sm:p-5 flex flex-col gap-3 min-w-0", className)} {...p} />;
 export const CardTitle = ({ className, ...p }) => <h2 className={cn("text-xl font-bold", className)} {...p} />;
 export const Badge = ({ className, tone = "neutro", ...p }) => (
   <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap [&_svg]:size-3.5",

@@ -51,7 +51,7 @@ function Montar({ o }) {
 export function Cards() {
   const n = useNucleo(); const fc = n.getFc(); const o = n.getS().obj; const [, set] = useState(0);
   if (!fc || fc.i >= fc.lista.length) return (
-    <Card className="items-center py-10 text-center"><span className="mao text-2xl text-marca">pronto!</span><h1 className="font-display text-3xl font-extrabold">Revisão de cartões concluída</h1>
+    <Card className="items-center py-10 text-center"><span className="mao text-2xl text-marca">Pronto!</span><h1 className="font-display text-3xl font-extrabold">Revisão de cartões concluída</h1>
       <p className="text-apagado"><span className="num">{fc ? fc.feitos : 0}</span> cartões revisados agora.</p><Button onClick={() => n.ui.ir("revisar")}>Voltar</Button></Card>);
   const c = n.CARDS[o].find((x) => x.id === fc.lista[fc.i]);
   const virar = () => { fc.virado = !fc.virado; set((x) => x + 1); };
@@ -63,7 +63,7 @@ export function Cards() {
       <button onClick={virar} aria-label={fc.virado ? "Resposta do cartão" : "Virar cartão"} className="relative h-72 w-full [perspective:1200px]">
         <motion.div key={fc.i} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1, rotateY: fc.virado ? 180 : 0 }} transition={{ type: "spring", stiffness: 200, damping: 24 }} className="relative size-full [transform-style:preserve-3d]">
           <div className="absolute inset-0 flex flex-col justify-between rounded-3xl border border-risco-2 bg-[linear-gradient(165deg,var(--folha-2),var(--folha))] p-6 text-left [backface-visibility:hidden]">
-            <span className="text-sm font-bold text-apagado">Pergunta</span><b className="font-display text-2xl leading-snug">{c.frente}</b><span className="mao text-apagado">toque para virar</span></div>
+            <span className="text-sm font-bold text-apagado">Pergunta</span><b className="font-display text-2xl leading-snug">{c.frente}</b><span className="mao text-apagado">Toque para virar</span></div>
           <div className="absolute inset-0 flex flex-col gap-3 rounded-3xl border border-acc bg-folha p-6 text-left [backface-visibility:hidden] [transform:rotateY(180deg)]">
             <span className="text-sm font-bold text-acc">Resposta</span><span className="text-lg leading-relaxed">{c.verso}</span></div>
         </motion.div>
@@ -112,8 +112,8 @@ export default function Treinar({ revisar }) {
         <Atalho Ic={Target} titulo="Pegadinhas da banca" desc="Só “alta chance”, matérias misturadas" onClick={() => n.iniciar(n.questoesFiltro(o, { alta: true, n: 10 }), "Pegadinhas da banca")} />
       </div>
       <Atalho destaque Ic={Calculator} titulo="Treino de contas" desc="Soma, subtração, multiplicação, divisão e mais: 10 níveis cada, com tempo e vidas" onClick={() => abrirContas(null, n.ui.ir)} />
-      {fracos.some((f) => f.s.t) && <div className="flex flex-wrap items-center gap-2"><span className="mao text-lg text-marca">seus pontos fracos:</span>{fracos.filter((f) => f.s.t).map((f) => <Badge key={f.tema} tone="erro">{f.tema}</Badge>)}</div>}
-      <section className="flex flex-col gap-3" aria-labelledby="outras"><h2 id="outras" className="inline-flex items-baseline gap-2 text-xl font-bold">Outras formas de estudar <span className="mao text-base font-normal text-marca">sem cara de lista</span></h2>
+      {fracos.some((f) => f.s.t) && <div className="flex flex-wrap items-center gap-2"><span className="mao text-lg text-marca">Seus pontos fracos:</span>{fracos.filter((f) => f.s.t).map((f) => <Badge key={f.tema} tone="erro">{f.tema}</Badge>)}</div>}
+      <section className="flex flex-col gap-3" aria-labelledby="outras"><h2 id="outras" className="inline-flex items-baseline gap-2 text-xl font-bold">Outras formas de estudar <span className="mao text-base font-normal text-marca">Sem cara de lista</span></h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{MODOS.map((m) => <Atalho key={m.id} Ic={m.Ic} titulo={m.nome} desc={m.desc} onClick={() => abrirModo(m.id, n.ui.ir)} />)}</div></section>
       <Montar o={o} />
       <Card className="relative overflow-hidden"><h2 className="inline-flex items-center gap-2 text-xl font-bold"><ClipboardList className="size-5 text-marca" />{o === "concurso" ? "Modo prova FAFIPA" : "Modo prova"}</h2><p className="text-sm text-apagado">{o === "concurso" ? "40 questões na divisão do edital (20 de Conhecimentos Específicos, 5 de Português, 5 de Raciocínio Lógico, 5 de Informática, 5 de Legislação), 3 horas de relógio e folha de respostas para marcar como no cartão. O gabarito comentado aparece só no fim. São questões do banco do app no estilo da banca, não provas antigas." : "Prova misturando as matérias, com relógio e folha de respostas. O gabarito comentado aparece só no fim."}</p>

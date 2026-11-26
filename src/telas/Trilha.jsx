@@ -11,6 +11,7 @@ import { Cabeca } from "./comum.jsx";
 import { Resumo } from "./Tema.jsx";
 import { labDoTema } from "@/lab/index.jsx";
 import { abrirLab } from "./Lab.jsx";
+import { inteira } from "@/nucleo/videos.js";
 
 export { Resumo };
 
@@ -27,12 +28,12 @@ function Fase({ t, st, prox, ultimo, onResumo }) {
         {st === "dom" ? <Check className="size-4" strokeWidth={3} /> : prox ? <Flame className="size-4" /> : st === "prog" ? <span className="size-2.5 rounded-full bg-acc" /> : null}
       </span>
       <div className={cn("flex min-w-0 flex-col gap-2 rounded-2xl border p-3.5", prox ? "border-acc bg-folha-2" : "border-risco bg-folha")}>
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1"><h3 className="text-[1.05rem] font-bold leading-snug">{t}</h3>{prox && <span className="mao text-acc">próxima fase</span>}</div>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1"><h3 className="text-[1.05rem] font-bold leading-snug">{t}</h3>{prox && <span className="mao text-acc">Próxima fase</span>}</div>
         <div className="flex flex-wrap gap-1.5 text-xs">
           {alta && <Badge tone="marca">Alta chance</Badge>}
           {s.t ? <Badge tone={s.p < .6 ? "erro" : "certo"} className="num">{Math.round(s.p * 100)}% de {s.t}</Badge> : <Badge>não iniciado</Badge>}
           <Badge>{gen ? "questões infinitas" : `${nq} questões`}</Badge>
-          {tr && <Badge tone="giz"><Play className="fill-current" />{tr[0][1]}</Badge>}
+          {tr && <Badge tone="giz"><Play className="fill-current" />{inteira(tr[0]) ? "aula" : tr[0][1]}</Badge>}
           {labDoTema(t) && <Badge tone="marca"><FlaskConical />interativo</Badge>}
           {n.P().aprendeu?.[t] && <Badge tone="certo"><Check />aula feita</Badge>}
         </div>

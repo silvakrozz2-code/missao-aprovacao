@@ -87,7 +87,7 @@ function Entender({ ap, o }) {
   const [nota, setNota] = useState(() => n.P().notas[tema] || "");
   const lab = labDoTema(tema);
   return (<>
-    {lab && <div className="flex flex-col gap-2"><span className="mao text-xl text-marca">mexa você mesmo antes de ler</span><Bancada item={lab} /></div>}
+    {lab && <div className="flex flex-col gap-2"><span className="mao text-xl text-marca">Mexa você mesmo antes de ler</span><Bancada item={lab} /></div>}
     <Card className="gap-4">
       <div className="flex items-center justify-between"><span className="text-sm font-bold text-apagado">Cartão <span className="num">{ap.card + 1}</span> de <span className="num">{cards.length}</span></span>
         <Button size="sm" variant="ghost" onClick={() => n.acaoAprender("ap-falar")}><Volume2 /> Ouvir</Button></div>

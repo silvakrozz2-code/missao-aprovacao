@@ -47,7 +47,7 @@ export default function Lab() {
     <div className="flex flex-col gap-5">
       <Cabeca eyebrow={n.OBJS[o].nome} titulo="Laboratório">Matemática para mexer com o dedo. Arraste, mude os números e toque em qualquer parte: o tutor explica aquela parte com os valores que estão na tela. Cada experimento tem missões que se completam sozinhas.</Cabeca>
       <div className="grid gap-3 sm:grid-cols-2">{itens.map((x, k) => <Cartao key={x.id} x={x} k={k} />)}</div>
-      {outros.length > 0 && <><h2 className="mao text-xl text-marca">de outras provas</h2><div className="grid gap-3 sm:grid-cols-2">{outros.map((x, k) => <Cartao key={x.id} x={x} k={k} />)}</div></>}
+      {outros.length > 0 && <><h2 className="mao text-xl text-marca">De outras provas</h2><div className="grid gap-3 sm:grid-cols-2">{outros.map((x, k) => <Cartao key={x.id} x={x} k={k} />)}</div></>}
     </div>
   );
 }

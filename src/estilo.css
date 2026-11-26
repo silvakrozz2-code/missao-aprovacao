@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
-/* Tokens "Lousa": verde-lousa, giz colorido por objetivo, anotação à mão (Kalam). */
+/* Tokens "Lousa": verde-lousa e cor de destaque por objetivo.
+   Tipografia: Archivo nos títulos e nos destaques, Inter no texto (números sem zero cortado). */
 @theme {
   --font-display: "Archivo", "Arial", system-ui, sans-serif;
-  --font-sans: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
-  --font-mao: "Kalam", "Segoe Print", cursive;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mao: var(--font-display); /* antes era a letra manuscrita; agora os destaques usam a fonte dos títulos */
+  --font-mono: ui-monospace, "Cascadia Mono", "Consolas", monospace;
   --color-lousa: var(--lousa);
   --color-folha: var(--folha);
   --color-folha-2: var(--folha-2);
@@ -52,11 +53,14 @@
 }
 
 html { font-size: var(--fs, 17px); }
-body { @apply bg-lousa text-giz font-sans antialiased; line-height: 1.55; }
+body { @apply bg-lousa text-giz font-sans antialiased; line-height: 1.55; font-feature-settings: "cv05", "cv08"; /* l com cauda e I com serifa: não confunde l, I e 1 */ }
 h1, h2, h3 { @apply font-display; font-stretch: 110%; letter-spacing: -0.015em; text-wrap: balance; }
+p, li { text-wrap: pretty; }
 :focus-visible { outline: 3px solid var(--acc); outline-offset: 2px; border-radius: 8px; }
-.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-.mao { font-family: var(--font-mao); }
+/* números alinhados em colunas, na mesma fonte do texto */
+.num { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+/* destaques curtos (rótulos, avisos de acerto/erro, letras das alternativas) */
+.mao { font-family: var(--font-mao); font-weight: 700; font-stretch: 105%; letter-spacing: -0.005em; }
 .vidro { background: color-mix(in srgb, var(--folha) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }

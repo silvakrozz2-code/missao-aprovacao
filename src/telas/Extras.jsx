@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { Play, Pause, SkipBack, SkipForward, Headphones, NotebookPen, Search, Trophy, Medal, Check, Flame } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Headphones, NotebookPen, Search, Trophy, Medal, Check, Flame, ChevronRight } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
@@ -129,8 +129,8 @@ export function CadernoTela() {
       <Cabeca eyebrow={d.nome} titulo="Caderno">Suas anotações e trechos marcados, organizados por tema. Abra um tema para escrever ou passar o marca-texto no resumo.</Cabeca>
       <label className="relative"><span className="sr-only">Buscar no caderno</span><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-apagado" />
         <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar tema ou anotação" className={cn(campo, "pl-9")} /></label>
-      {com.length > 0 && <section className="flex flex-col gap-2"><h2 className="mao text-xl text-marca">com anotações</h2>{com.map((x) => <Linha key={x.t} x={x} />)}</section>}
-      <section className="flex flex-col gap-2"><h2 className="mao text-xl text-marca">{com.length ? "ainda em branco" : "todos os temas"}</h2>
+      {com.length > 0 && <section className="flex flex-col gap-2"><h2 className="mao text-xl text-marca">Com anotações</h2>{com.map((x) => <Linha key={x.t} x={x} />)}</section>}
+      <section className="flex flex-col gap-2"><h2 className="mao text-xl text-marca">{com.length ? "Ainda em branco" : "Todos os temas"}</h2>
         <div className="grid gap-2 sm:grid-cols-2">{sem.map((x) => <Linha key={x.t} x={x} />)}</div></section>
       <Resumo key={aberto || "x"} tema={aberto} aba="caderno" onClose={() => setAberto(null)} />
     </div>
@@ -148,7 +148,7 @@ export function DesafiosCard({ compacto }) {
         <li key={x.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1">
           <span className={cn("text-sm", x.feito && "text-apagado line-through")}>{x.nome}</span><span className="num text-sm">{x.feito ? <Check className="size-4 text-certo" /> : `${Math.min(x.v, x.meta)}/${x.meta}`}</span>
           <Progress className="col-span-2 h-1.5" tone={x.feito ? "certo" : "acc"} value={n.pct(Math.min(x.v, x.meta), x.meta)} label={x.nome} /></li>))}</ul>
-      {compacto && <Button size="sm" variant="ghost" className="self-start" onClick={() => n.ui.ir("desafios")}>Ver desafios e ranking</Button>}
+      {compacto && <Button size="sm" variant="secondary" className="self-start" onClick={() => n.ui.ir("desafios")}>Ver desafios e ranking <ChevronRight /></Button>}
       <span className="text-xs text-apagado">Cada desafio cumprido vale 60 XP. Os desafios renovam toda segunda-feira.</span>
     </Card>
   );

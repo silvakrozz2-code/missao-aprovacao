@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress.jsx";
 import { NumberTicker, ShimmerButton, BorderBeam, Spotlight, Aurora, SplitText, Entra } from "@/components/efeitos/efeitos.jsx";
 import { IconeMat } from "@/icones.jsx";
 import { DesafiosCard } from "./Extras.jsx";
+import { inteira } from "@/nucleo/videos.js";
 const Escada3D = lazy(() => import("@/components/Escada3D.jsx"));
 
 export function Vitrine({ o }) {
@@ -26,7 +27,7 @@ export function Vitrine({ o }) {
               <span className="relative grid aspect-video place-items-center overflow-hidden rounded-xl bg-[radial-gradient(120%_120%_at_20%_10%,color-mix(in_srgb,var(--acc)_40%,var(--folha-2)),var(--folha-2)_70%)]">
                 <IconeMat mid={mid} className="size-[44%] opacity-90" strokeWidth={1.25} />
                 <span className="absolute bottom-2.5 left-2.5 grid size-9 place-items-center rounded-full bg-giz text-lousa"><Play className="ml-0.5 size-4 fill-current" /></span>
-                <span className="num absolute bottom-2 right-2 rounded-md bg-black/75 px-1.5 text-xs text-white">{tr[1]}</span>
+                <span className="num absolute bottom-2 right-2 rounded-md bg-black/75 px-1.5 text-xs text-white">{inteira(tr) ? "aula" : tr[1]}</span>
               </span>
               <b className="relative px-0.5 leading-snug">{t}</b>
               <span className="relative px-0.5 text-sm text-apagado">{tr[3]}{tr[2] ? ` · ${n.durTxt(tr[1], tr[2])}` : ""}</span>
@@ -60,15 +61,15 @@ export default function Painel() {
       <section aria-label="Sua subida até a prova" className="relative isolate grid gap-2 overflow-hidden rounded-3xl border border-risco bg-[linear-gradient(160deg,var(--folha-2),var(--folha)_60%)] p-5 md:grid-cols-[1.05fr_1fr] md:p-7">
         <Aurora className="-z-10" />
         <BorderBeam />
-        <div className="relative h-52 md:order-2 md:h-72"><Suspense fallback={null}><Escada3D degrau={deg} cor={cs?.getPropertyValue("--acc").trim() || "#8cc4ff"} giz={cs?.getPropertyValue("--giz").trim() || "#eef0e8"} /></Suspense>
-          <span className="mao pointer-events-none absolute left-1 top-0 -rotate-3 text-marca">sua escada até a prova</span></div>
+        <div className="relative h-36 sm:h-52 md:order-2 md:h-72"><Suspense fallback={null}><Escada3D degrau={deg} cor={cs?.getPropertyValue("--acc").trim() || "#8cc4ff"} giz={cs?.getPropertyValue("--giz").trim() || "#eef0e8"} /></Suspense>
+          <span className="mao pointer-events-none absolute left-1 top-0 text-sm text-marca">Sua escada até a prova</span></div>
         <div className="flex min-w-0 flex-col gap-3">
           <Eyebrow>{d.codigo} · {cargo}{banca ? ` · ${banca}` : ""}</Eyebrow>
-          <SplitText key={o} text={d.nome} className="text-4xl font-extrabold leading-[1.02] md:text-5xl" />
-          <p className="flex items-baseline gap-3"><NumberTicker value={dd} className="font-display text-6xl font-extrabold leading-none text-acc [font-stretch:115%]" /><span className="font-bold text-apagado">{dd === 1 ? "dia" : "dias"} até a prova{d.dataNota ? " (estimada)" : ""}</span></p>
+          <SplitText key={o} text={d.nome} className="text-[2rem] font-extrabold leading-[1.04] sm:text-4xl md:text-5xl" />
+          <p className="flex items-baseline gap-3"><NumberTicker value={dd} className="font-display text-5xl font-extrabold leading-none text-acc [font-stretch:115%] sm:text-6xl" /><span className="font-bold text-apagado">{dd === 1 ? "dia" : "dias"} até a prova{d.dataNota ? " (estimada)" : ""}</span></p>
           <div className="flex flex-col gap-1.5 text-sm text-apagado"><span>Degrau <b className="text-giz">{deg + 1} de 6</b> · {ed.p}% do edital estudado</span><Progress value={ed.p} label="Edital estudado" /></div>
           {t ? (<>
-            <div className="flex flex-col gap-1 rounded-2xl border border-dashed border-risco-2 bg-[color-mix(in_srgb,var(--lousa)_55%,transparent)] px-3.5 py-2.5"><span className="text-sm text-apagado">Próxima aula</span><b className="text-lg">{t}</b>{tr && <Badge tone="giz" className="self-start"><Play className="fill-current" /> vídeo a partir de {tr[1]}</Badge>}</div>
+            <div className="flex flex-col gap-1 rounded-2xl border border-dashed border-risco-2 bg-[color-mix(in_srgb,var(--lousa)_55%,transparent)] px-3.5 py-2.5"><span className="text-sm text-apagado">Próxima aula</span><b className="text-lg">{t}</b>{tr && <Badge tone="giz" className="self-start"><Play className="fill-current" /> {inteira(tr) ? "videoaula do tema" : `vídeo a partir de ${tr[1]}`}</Badge>}</div>
             <ShimmerButton onClick={() => n.abrirAprender(t)}><Play className="fill-current" /> Aprender agora</ShimmerButton></>)
             : <Badge tone="certo" className="self-start"><Sparkles /> Edital inteiro dominado</Badge>}
         </div>
@@ -79,10 +80,10 @@ export default function Painel() {
 
       <div className="grid grid-cols-3 gap-3">
         {[[Flame, "Ofensiva", n.ofensiva(), "dias seguidos", "text-enem"], [Target, "Hoje", hj.q, `questões · ${n.pct(hj.a, hj.q)}%`, "text-acc"], [Trophy, "Previsão", prev ? prev.nota : null, prev ? (prev.nota >= 60 ? "acima dos 60%" : "abaixo dos 60%") : "faça 3+ por matéria", "text-marca"]].map(([Ic, nome, v, sub, cor], i) => (
-          <Entra key={nome} atraso={.05 * i} className="flex min-w-0 flex-col gap-1 rounded-2xl border border-risco bg-folha p-3.5">
+          <Entra key={nome} atraso={.05 * i} className="flex min-w-0 flex-col gap-1 rounded-2xl border border-risco bg-folha p-3 sm:p-3.5">
             <span className="inline-flex items-center gap-1.5 text-sm font-bold text-apagado"><Ic className={`size-4 ${cor}`} />{nome}</span>
             {v == null ? <b className="font-display text-3xl">—</b> : <span className="font-display text-3xl font-extrabold">{nome === "Previsão" ? <><NumberTicker value={v} />%</> : <NumberTicker value={v} />}</span>}
-            <span className="text-xs text-apagado">{sub}</span>
+            <span className="text-xs leading-snug text-apagado">{sub}</span>
           </Entra>))}
       </div>
 
@@ -105,9 +106,8 @@ export default function Painel() {
           <div className="flex items-center justify-between"><CardTitle className="inline-flex items-center gap-2"><CalendarDays className="size-5 text-acc" />Plano de hoje</CardTitle><a href="/classico/#plano" className="text-sm font-bold text-acc underline underline-offset-4">Semana toda</a></div>
           <div className="flex flex-col gap-2">
             {blocos.map((b, i) => (
-              <div key={i} className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-folha-2 p-3">
-                <span className="num text-sm text-apagado">{b.min} min</span>
-                <div className="min-w-0"><b className="block leading-snug">{b.tema}</b><span className="text-sm text-apagado">{b.tipo === "simulado" ? "Mini-simulado" : b.tipo === "revisao" ? "Revisão + 10 questões" : b.tipo === "questoes" ? "10 questões" : "Aula + 10 questões"}</span></div>
+              <div key={i} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-folha-2 p-3">
+                <div className="min-w-0"><b className="block leading-snug">{b.tema}</b><span className="text-sm text-apagado"><span className="num font-semibold text-giz">{b.min} min</span> · {b.tipo === "simulado" ? "Mini-simulado" : b.tipo === "revisao" ? "Revisão + 10 questões" : b.tipo === "questoes" ? "10 questões" : "Aula + 10 questões"}</span></div>
                 <Button size="sm" variant="secondary" onClick={() => b.tipo === "simulado" ? n.iniciar(n.simulado(o).slice(0, 10), "Mini-simulado", "simulado", { minutos: 15 }) : b.tipo === "questoes" ? n.iniciar(n.questoesDoTema(o, b.tema, 0, 10), b.tema) : n.abrirAprender(b.tema)}>Começar</Button>
               </div>))}
           </div>

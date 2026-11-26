@@ -28,7 +28,7 @@ function Fim({ acertos, total, rotulo = "acertos", onDeNovo, extra, voltam }) {
   const p = total ? acertos / total : 0;
   return (
     <Card className="items-center py-8 text-center">
-      <span className="mao text-2xl text-marca">{p >= .8 ? "mandou bem!" : p >= .5 ? "tá no caminho" : "bora de novo"}</span>
+      <span className="mao text-2xl text-marca">{p >= .8 ? "Mandou bem!" : p >= .5 ? "Está no caminho" : "Vamos de novo"}</span>
       <b className="num font-display text-5xl font-extrabold">{acertos}<span className="text-apagado">/{total}</span></b>
       <span className="text-sm text-apagado">{rotulo}{voltam ? " · as questões que você errou voltam amanhã na revisão" : ""}</span>
       {extra}
@@ -64,7 +64,7 @@ function CertoErrado({ o, mat, onFim }) {
           <Faiscas disparo={faisca} />
           <div className="flex flex-wrap items-center justify-between gap-2"><Badge>{it.q.tema}</Badge><span className="num text-sm text-apagado">item {i + 1} de {itens.length}</span></div>
           <p className="text-[1.05rem] leading-relaxed">{it.q.enunciado}</p>
-          <div className="rounded-xl border-l-4 border-marca bg-folha-2 px-4 py-3"><span className="mao block text-marca">resposta proposta</span><span className="text-lg font-bold leading-snug">{it.q.alternativas[it.k]}</span></div>
+          <div className="rounded-xl border-l-4 border-marca bg-folha-2 px-4 py-3"><span className="mao block text-marca">Resposta proposta</span><span className="text-lg font-bold leading-snug">{it.q.alternativas[it.k]}</span></div>
           <p className="text-sm text-apagado">Essa é a resposta certa da questão? Atalho no teclado: C ou E.</p>
           <div className="grid grid-cols-2 gap-2">
             {[[true, "Certo", Check], [false, "Errado", X]].map(([v, nome, Ic]) => {
@@ -74,7 +74,7 @@ function CertoErrado({ o, mat, onFim }) {
             })}
           </div>
           {r != null && <div className="flex flex-col gap-2 border-t border-dashed border-risco-2 pt-3" aria-live="polite">
-            <b className={cn("mao text-xl", r ? "text-certo" : "text-erro")}>{r ? "isso!" : "não era"}{it.certo ? " · era a resposta certa" : " · a resposta certa é outra"}</b>
+            <b className={cn("mao text-xl", r ? "text-certo" : "text-erro")}>{r ? "Isso!" : "Não era"}{it.certo ? " · era a resposta certa" : " · a resposta certa é outra"}</b>
             {!it.certo && <p><span className="text-sm font-bold text-apagado">Resposta certa: </span>{it.q.alternativas[it.q.correta]}</p>}
             {it.q.explicacao && <p className="text-[.95rem] leading-relaxed text-apagado">{it.q.explicacao}</p>}
             <Button onClick={prox} className="self-end">{i + 1 >= itens.length ? "Ver placar" : "Próximo item"}<ArrowRight /></Button>
@@ -103,7 +103,7 @@ function Colunas({ o, mat, onFim }) {
   return (
     <div className="relative flex flex-col gap-4">
       <Faiscas disparo={faisca} />
-      <div className="flex items-center justify-between text-sm"><span className="mao text-lg text-marca">{sel ? "agora toque na resposta" : "toque numa pergunta"}</span><span className="num text-apagado">{feitos}/{cards.length} · {erros} {erros === 1 ? "erro" : "erros"}</span></div>
+      <div className="flex items-center justify-between text-sm"><span className="mao text-lg text-marca">{sel ? "Agora toque na resposta" : "Toque numa pergunta"}</span><span className="num text-apagado">{feitos}/{cards.length} · {erros} {erros === 1 ? "erro" : "erros"}</span></div>
       <div className="grid gap-4 sm:grid-cols-2">
         <ul className="flex flex-col gap-2" aria-label="Perguntas">{cards.map((c) => { const ok = par[c.id]; return (
           <li key={c.id}><button type="button" disabled={!!ok} aria-pressed={sel === c.id} onClick={() => setSel(sel === c.id ? null : c.id)}
@@ -200,7 +200,7 @@ function Despejo({ o, mat, onFim }) {
   if (fase === "escrever") return (
     <Card className="gap-4">
       <label className="flex flex-col gap-1.5 text-sm font-bold">Tema<select className={campo} value={tema} onChange={(e) => { setTema(e.target.value); setSeg(180); }}>{temas.map((t) => <option key={t}>{t}</option>)}</select></label>
-      <div className="flex items-baseline justify-between gap-2"><span className="mao text-xl text-marca">sem olhar nada, escreva tudo o que lembra</span>
+      <div className="flex items-baseline justify-between gap-2"><span className="mao text-xl text-marca">Sem olhar nada, escreva tudo o que lembra</span>
         <span className={cn("num inline-flex items-center gap-1 font-bold", seg <= 30 ? "text-erro" : "text-apagado")}><Timer className="size-4" />{n.mmss(seg * 1000)}</span></div>
       <textarea value={txt} onChange={(e) => setTxt(e.target.value)} rows={9} aria-label={`O que você lembra de ${tema}`} placeholder="Conceitos, artigos, prazos, exemplos, pegadinhas... do jeito que vier."
         className="w-full rounded-xl border border-risco-2 bg-[repeating-linear-gradient(transparent_0_31px,var(--risco)_31px_32px)] bg-folha-2 px-4 py-1 text-[1.05rem] leading-8 text-giz" />
@@ -216,7 +216,7 @@ function Despejo({ o, mat, onFim }) {
         <li key={k}><button type="button" aria-pressed={!!marca[k]} onClick={() => setMarca((m) => { const y = [...m]; y[k] = !y[k]; return y; })}
           className={cn("flex w-full items-start gap-3 rounded-xl border p-3 text-left text-[.95rem] leading-relaxed", marca[k] ? "border-certo/60 bg-folha-2" : "border-erro/50 bg-folha")}>
           <span className={cn("mt-0.5 grid size-6 shrink-0 place-items-center rounded-full", marca[k] ? "bg-certo text-lousa" : "border-2 border-erro text-erro")}>{marca[k] ? <Check className="size-3.5" strokeWidth={3} /> : <X className="size-3.5" strokeWidth={3} />}</span>
-          <span><span className={cn("mao mr-1.5", marca[k] ? "text-certo" : "text-erro")}>{marca[k] ? "lembrei" : "esqueci"}</span>{l}</span></button></li>))}</ul>
+          <span><span className={cn("mao mr-1.5", marca[k] ? "text-certo" : "text-erro")}>{marca[k] ? "Lembrei" : "Esqueci"}</span>{l}</span></button></li>))}</ul>
       <details className="rounded-xl border border-dashed border-risco-2 p-3"><summary className="cursor-pointer text-sm font-bold">O que você escreveu</summary><p className="mt-2 whitespace-pre-wrap text-apagado">{txt}</p></details>
       <div className="grid gap-2 sm:grid-cols-3">
         <Button onClick={() => onFim(lembrei, r.t.length, [])}>Concluir</Button>

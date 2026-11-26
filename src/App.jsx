@@ -30,14 +30,16 @@ function Toast() {
   );
 }
 
+const CURTO = { concurso: "Concurso", npor: "NPOR", enem: "ENEM" };
 function Objetivos({ vertical }) {
   const n = useNucleo(); const S = n.getS();
   return (
     <div role="group" aria-label="Objetivo" className={cn("flex gap-1 rounded-2xl bg-folha-2 p-1", vertical && "flex-col")}>
       {n.ORDEM.map((o) => { const d = n.diasAte(S.cfg.datas[o]); const on = S.obj === o; return (
-        <button key={o} aria-pressed={on} onClick={() => n.trocarObj(o)} className={cn("relative flex flex-1 items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm font-bold transition-colors", vertical ? "" : "flex-col items-center text-center", on ? "text-giz" : "text-apagado hover:text-giz")}>
-          {on && <motion.span layoutId={vertical ? "obj-v" : "obj-h"} className="absolute inset-0 rounded-xl bg-folha shadow-[inset_0_-3px_0_var(--acc)]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
-          <span className="relative leading-tight">{n.OBJS[o].nome}</span><span className="num relative text-xs" style={{ color: on ? `var(--${o})` : undefined }}>{d >= 0 ? `${d}d` : "—"}</span>
+        <button key={o} aria-pressed={on} aria-label={`${n.OBJS[o].nome}${d >= 0 ? `, faltam ${d} dias` : ""}`} onClick={() => n.trocarObj(o)} className={cn("relative flex flex-1 items-center gap-2 rounded-xl text-sm font-bold transition-colors", vertical ? "justify-between px-3 py-2 text-left" : "min-h-9 justify-center px-2 py-1.5", on ? "text-giz" : "text-apagado hover:text-giz")}>
+          {on && <motion.span layoutId={vertical ? "obj-v" : "obj-h"} className="absolute inset-0 rounded-xl bg-folha shadow-[inset_0_-2px_0_var(--acc)]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
+          {/* no celular cabe só o nome curto; o nome completo fica no aria-label */}
+          <span className="relative truncate leading-tight">{vertical ? n.OBJS[o].nome : CURTO[o] || n.OBJS[o].nome}</span><span className="num relative text-xs font-semibold" style={{ color: on ? `var(--${o})` : undefined }}>{d >= 0 ? `${d}d` : "—"}</span>
         </button>); })}
     </div>
   );

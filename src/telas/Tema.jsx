@@ -7,6 +7,7 @@ import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
 import { Dialog, DialogContent } from "@/components/ui/dialog.jsx";
 import { Macete, LETRAS } from "./comum.jsx";
+import { inteira } from "@/nucleo/videos.js";
 
 export const resumoQualquer = (n, o, tema) => tema ? n.resumoDe(o, tema) || Object.values(n.OBJS).map((x) => x.resumos[tema]).find(Boolean) : null;
 
@@ -167,7 +168,7 @@ export function Resumo({ tema, onClose, aba = "pagina" }) {
         <div className="mt-5 flex flex-col gap-2 border-t border-dashed border-risco-2 pt-4">
           <div className="flex flex-wrap gap-2">
             {r.lei && <Button asChild size="sm" variant="secondary"><a href={r.lei} target="_blank" rel="noopener">Texto oficial</a></Button>}
-            {(n.TRECHOS[tema] || []).map((x, i) => <Button key={i} asChild size="sm" variant="secondary"><a href={n.ytLink(x[0], x[1])} target="_blank" rel="noopener"><Play className="fill-current" /> {x[1]} · {x[3]}</a></Button>)}
+            {(n.TRECHOS[tema] || []).map((x, i) => <Button key={i} asChild size="sm" variant="secondary"><a href={n.ytLink(x[0], x[1])} target="_blank" rel="noopener"><Play className="fill-current" /> {inteira(x) ? x[3] : `${x[1]} · ${x[3]}`}</a></Button>)}
           </div>
           <Button onClick={() => { onClose(); n.abrirAprender(tema); }}><GraduationCap /> Aprender passo a passo</Button>
         </div>

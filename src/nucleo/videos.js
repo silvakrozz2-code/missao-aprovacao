@@ -7,6 +7,27 @@ export const VIDEOS = {
   papg: { id: "oDuC3kY7hC8", titulo: "Progressões: PA e PG do zero, para o ENEM e vestibulares", canal: "Videoaula (YouTube)", dur: "aula" },
   conj: { id: "0aUEDxYjZg8", titulo: "Conjuntos: introdução (representação, pertinência e inclusão)", canal: "Videoaula (YouTube)", dur: "aula" },
   logica: { id: "vdZSCwhC8Z0", titulo: "Raciocínio Lógico: introdução à lógica proposicional e conectivos", canal: "Videoaula (YouTube)", dur: "20min" },
+  // Português, Direito e Informática do concurso: vídeos inteiros sobre o tema (conferidos em 26/11/2026)
+  pt_crase: { id: "5uMooAjtVis", titulo: "Crase: as 6 regras mais cobradas em concurso", canal: "Prof. Álvaro Ferreira", dur: "aula" },
+  pt_conc: { id: "jdqhnVUvqOc", titulo: "Concordância verbal: teoria e questões para concurso", canal: "Prof. Álvaro Ferreira", dur: "aula" },
+  pt_virg: { id: "S0dmQR6hpPE", titulo: "Uso da vírgula: regras mais cobradas em concurso", canal: "Prof. Álvaro Ferreira", dur: "aula" },
+  pt_pont: { id: "G8Stjzy-87k", titulo: "Pontuação: aulão completo para concurso", canal: "Prof. Álvaro Ferreira", dur: "aula" },
+  pt_acent: { id: "aZQkWn7il-E", titulo: "Acentuação para concurso em 5 minutos", canal: "Prof. Álvaro Ferreira", dur: "aula" },
+  pt_pq5: { id: "Dr9_scwrTHA", titulo: "Uso dos porquês em 5 minutos", canal: "Prof. Álvaro Ferreira", dur: "aula" },
+  pt_pq: { id: "JP3kSoWPn3E", titulo: "Uso dos porquês: não erre mais nas questões", canal: "Prof. Álvaro Ferreira", dur: "aula" },
+  adm_atos: { id: "fWGhBOusZ2M", titulo: "Atos administrativos (aula gratuita)", canal: "Aprovação PGE", dur: "aula" },
+  adm_lic: { id: "Pecf9lc-UGo", titulo: "Lei 14.133/2021 esquematizada para concursos", canal: "Estratégia Concursos", dur: "aula" },
+  adm_lic2: { id: "qMHYuUvB5vU", titulo: "Lei 14.133/21: guia completo (aula 1)", canal: "Estudo Nômade", dur: "aula" },
+  adm_limpe: { id: "U2fHMct7X5I", titulo: "Princípios da Administração Pública (LIMPE, art. 37)", canal: "Prof. Eriksen Almerão", dur: "aula" },
+  adm_limpe2: { id: "Qm4ernn3c9M", titulo: "Princípios expressos LIMPE em animação", canal: "Mundo da Administração", dur: "aula" },
+  leg_impr: { id: "QwNcy04oq8I", titulo: "Improbidade: Lei 8.429 atualizada pela Lei 14.230/2021", canal: "Prof. Guilherme de Luca", dur: "aula" },
+  leg_impr2: { id: "cTJdXALKpm4", titulo: "Entenda de uma vez a Lei 8.429/1992", canal: "Gran Cursos Online", dur: "aula" },
+  leg_art37: { id: "DPGxb3ksHLE", titulo: "Administração Pública na CF (arts. 37 a 41), parte 1", canal: "Matérias para concursos", dur: "aula" },
+  inf_win: { id: "9r5VY7ph37Y", titulo: "Atalhos do Windows que caem em todo concurso", canal: "Clica ali!", dur: "aula" },
+  inf_excel: { id: "IYrhlQkZ5os", titulo: "Teclas de atalho do Excel para concurso", canal: "Clica ali!", dur: "aula" },
+  inf_atal: { id: "XhjeXVukJxA", titulo: "Teclas de atalho mais pedidas em concurso", canal: "Clica ali!", dur: "aula" },
+  inf_seg: { id: "mOMKbwUNplE", titulo: "Segurança da informação para concursos", canal: "Professor Victor Dalton", dur: "aula" },
+  inf_mal: { id: "1tVxzd7id7A", titulo: "Malware e vírus para concursos", canal: "Prof. Marcelo Narciso", dur: "aula" },
 };
 // tema → lista de trechos [video, inicio, fim|null, o que mostra, nivel 1=base 2=aprofunda]
 export const TRECHOS = {
@@ -47,4 +68,21 @@ export const TRECHOS = {
   "Matrizes e determinantes": [["m12", "4:10:33", "4:14:29", "Matrizes e determinantes", 1], ["m12", "4:14:29", "4:21:45", "Questões de matrizes", 2]],
   "Geometria analítica": [["m12", "4:21:45", "4:28:13", "Plano cartesiano (base)", 1], ["m12", "11:34:09", "11:57:33", "Geometria analítica: ponto, reta e distância", 2]],
   "Unidades de medida": [["m12", "2:21:54", "2:33:25", "Conversão de unidades", 1], ["m12", "2:33:25", "2:36:32", "Questões de conversão", 2], ["m12", "2:36:32", "2:43:30", "Notação científica", 2]],
+  // vídeos inteiros: começam do início
+  "Crase": [["pt_crase", "0:00", null, "As 6 regras mais cobradas, com questões", 2]],
+  "Concordância": [["pt_conc", "0:00", null, "Concordância verbal: teoria e questões", 2]],
+  "Pontuação": [["pt_virg", "0:00", null, "Vírgula: as regras que mais caem", 1], ["pt_pont", "0:00", null, "Pontuação completa (aulão)", 2]],
+  "Acentuação": [["pt_acent", "0:00", null, "Acentuação em 5 minutos", 1]],
+  "Uso dos porquês": [["pt_pq5", "0:00", null, "Os quatro porquês em 5 minutos", 1], ["pt_pq", "0:00", null, "Porquês com questões de concurso", 2]],
+  "Atos administrativos": [["adm_atos", "0:00", null, "Atos administrativos: aula completa", 2]],
+  "Licitações (Lei 14.133)": [["adm_lic", "0:00", null, "A lei esquematizada para concurso", 1], ["adm_lic2", "0:00", null, "Aplicação e princípios da lei", 2]],
+  "Administração Pública": [["adm_limpe2", "0:00", null, "Princípios LIMPE em animação", 1], ["adm_limpe", "0:00", null, "Princípios da Administração Pública", 2]],
+  "CF: Administração Pública (arts. 37 a 41)": [["adm_limpe2", "0:00", null, "Princípios LIMPE do art. 37 em animação", 1], ["leg_art37", "0:00", null, "Arts. 37 a 41 da Constituição", 2]],
+  "Improbidade (Lei 8.429)": [["leg_impr", "0:00", null, "Lei de Improbidade atualizada (2021)", 2], ["leg_impr2", "0:00", null, "A Lei 8.429 explicada", 2]],
+  "Atalhos do Windows": [["inf_win", "0:00", null, "Atalhos do Windows que mais caem", 1], ["inf_atal", "0:00", null, "Atalhos mais pedidos em prova", 2]],
+  "Excel 2016": [["inf_excel", "0:00", null, "Teclas de atalho do Excel", 1]],
+  "Segurança da informação": [["inf_mal", "0:00", null, "Malware e vírus com questões", 1], ["inf_seg", "0:00", null, "Segurança da informação completa", 2]],
 };
+
+// trecho que é o vídeo inteiro: começa do início e não tem fim marcado
+export const inteira = (t) => !!t && t[1] === "0:00" && !t[2];

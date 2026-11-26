@@ -14,7 +14,7 @@ export const mmc = (a, b) => (a && b ? Math.abs(a * b) / mdc(a, b) : 0);
 export function Palco({ w = 360, h = 260, children, label, svgRef, className, grade = 20 }) {
   return (
     <div className={cn("relative overflow-hidden rounded-2xl border border-risco-2 bg-[radial-gradient(120%_90%_at_30%_0%,#1b2a24,#111a16_70%)] shadow-[inset_0_2px_30px_rgba(0,0,0,.45)]", className)}>
-      <svg ref={svgRef} viewBox={`0 0 ${w} ${h}`} role="group" aria-label={label} className="block h-auto w-full touch-none select-none" style={{ fontFamily: "Kalam, cursive" }}>
+      <svg ref={svgRef} viewBox={`0 0 ${w} ${h}`} role="group" aria-label={label} className="block h-auto w-full touch-none select-none" style={{ fontFamily: "Archivo, sans-serif", fontWeight: 700 }}>
         <defs>
           <filter id="giz" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="3" /><feDisplacementMap in="SourceGraphic" scale="1.6" /></filter>
           <pattern id="grade" width={grade} height={grade} patternUnits="userSpaceOnUse"><path d={`M${grade} 0H0V${grade}`} fill="none" stroke="rgba(238,240,232,.07)" strokeWidth="1" /></pattern>
@@ -92,7 +92,7 @@ export function Tutor({ fala }) {
           <b className="mao block text-lg leading-tight text-marca">{fala?.titulo}</b>
           <p className="mt-1 leading-relaxed">{fala?.txt}</p>
           {fala?.conta && <p className="num mt-2 break-words rounded-lg bg-lousa px-3 py-1.5 text-[.95rem] text-acc">{fala.conta}</p>}
-          {fala?.dica && <p className="mt-2 text-sm text-apagado"><span className="mao text-base text-giz">experimente:</span> {fala.dica}</p>}
+          {fala?.dica && <p className="mt-2 text-sm text-apagado"><span className="mao text-base text-giz">Experimente:</span> {fala.dica}</p>}
         </motion.div>
       </AnimatePresence>
     </div>
@@ -112,7 +112,7 @@ export function Missoes({ lista }) {
         <li key={k} className={cn("flex items-start gap-2 text-sm", m.ok && "text-apagado")}>
           <span className={cn("mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-2", m.ok ? "border-certo bg-certo text-lousa" : "border-risco-2")}>{m.ok && <Check className="size-3" strokeWidth={3.5} />}</span>
           <span className={cn(m.ok && "line-through")}>{m.txt}</span></li>))}</ul>
-      {n === lista.length && <span className="mao inline-flex items-center gap-1 text-lg text-certo"><Sparkles className="size-4" />mandou bem, agora tente as questões</span>}
+      {n === lista.length && <span className="mao inline-flex items-center gap-1 text-lg text-certo"><Sparkles className="size-4" />Mandou bem! Agora tente as questões</span>}
     </div>
   );
 }
