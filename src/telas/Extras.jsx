@@ -77,7 +77,12 @@ export function EscolherVoz() {
     const at = () => { const l = vozesPt(); setLista(l); setAtual((a) => a || vozAtual()); };
     at(); s.addEventListener?.("voiceschanged", at); return () => s.removeEventListener?.("voiceschanged", at);
   }, []);
-  const testar = () => { destravarLeitura(); pararLeitura(); lerTexto("Oi! Esta é a voz que vai ler os seus resumos. Vamos estudar?", 1); };
+  const [aviso, setAviso] = useState("");
+  const testar = () => {
+    destravarLeitura(); pararLeitura(); setAviso("");
+    lerTexto("Oi! Esta é a voz que vai ler os seus resumos. Vamos estudar?", 1, null,
+      (motivo) => setAviso(motivo ? `A voz de IA não tocou agora: ${motivo} Usei a voz do aparelho.` : "A voz de IA não tocou agora. Usei a voz do aparelho."));
+  };
   const temNatural = lista.some(ehNatural);
   const vozGemini = atual.startsWith("g:"); const vozOpenai = atual.startsWith("openai:");
   return (
@@ -100,6 +105,7 @@ export function EscolherVoz() {
           : vozOpenai
           ? <span className="text-sm text-apagado">As vozes da OpenAI só tocam quando a chave OPENAI_API_KEY (paga) está na Vercel. Sem ela, a leitura usa a voz do aparelho.</span>
           : !temNatural && <span className="text-sm text-apagado">Este navegador só tem voz robótica. Para voz natural, igual à de assistente, abra o app no Microsoft Edge (vozes Francisca e Antonio). No celular, instale as vozes do Google em Configurações › Texto para fala.</span>}</div>
+      {aviso && <span className="text-sm font-semibold text-red-600">{aviso}</span>}
     </div>
   );
 }
