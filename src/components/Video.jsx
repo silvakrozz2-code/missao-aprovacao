@@ -8,6 +8,12 @@ import { inteira } from "@/nucleo/videos.js";
 export function TrechoVideo({ v, ini, fim, titulo }) {
   const [on, setOn] = useState(false);
   const vid = N.VIDEOS[v]; if (!vid) return null;
+  // aula própria do app: mp4 servido pelo próprio site, com player nativo
+  if (vid.arquivo) return (
+    <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-risco-2 bg-black">
+      <video src={vid.arquivo} poster={vid.capa} controls preload="none" playsInline aria-label={titulo} className="absolute inset-0 size-full" />
+    </div>
+  );
   const s = N.segs(ini), e = fim ? N.segs(fim) : null;
   const src = `https://www.youtube-nocookie.com/embed/${vid.id}?start=${s}${e ? `&end=${e}` : ""}&autoplay=1&rel=0&modestbranding=1&playsinline=1`;
   return (

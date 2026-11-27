@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress.jsx";
 import { Faiscas, ShimmerButton, NumberTicker } from "@/components/efeitos/efeitos.jsx";
 import { BotaoRascunho } from "@/components/Rascunho.jsx";
 import { TrechoVideo } from "@/components/Video.jsx";
+import { linkVideo, proprio } from "@/nucleo/videos.js";
 import { AulaEscrita } from "@/components/AulaEscrita.jsx";
 import { labDoTema } from "@/lab/index.jsx";
 import { Bancada } from "./Lab.jsx";
@@ -41,7 +42,7 @@ function Trecho({ tr, k, tema }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0"><b className="block leading-snug">{oque}</b><span className="text-sm text-apagado">{vid.canal} · {vid.titulo}{fim ? ` · trecho de ${n.durTxt(ini, fim)}` : ""}</span></div>
         <div className="flex flex-wrap gap-1.5">
-          <Button asChild size="sm" variant="ghost"><a href={n.ytLink(v, ini)} target="_blank" rel="noopener" aria-label={`Abrir no YouTube: ${oque}`}>Abrir no YouTube</a></Button>
+          {!proprio(v) && <Button asChild size="sm" variant="ghost"><a href={linkVideo(v, ini)} target="_blank" rel="noopener" aria-label={`Abrir no YouTube: ${oque}`}>Abrir no YouTube</a></Button>}
           <Button size="sm" variant={visto ? "secondary" : "outline"} aria-pressed={visto} onClick={() => n.acaoAprender("ap-assisti", { key })}>{visto ? <><Check /> Assistido</> : "Marcar assistido"}</Button>
         </div>
       </div>

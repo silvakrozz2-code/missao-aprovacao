@@ -2,6 +2,10 @@
 // na transcrição pública de cada vídeo (catálogo Assaadflix, 24/11/2026).
 // "fim" = início do assunto seguinte no mesmo vídeo (quando conhecido).
 export const VIDEOS = {
+  // Videoaulas próprias do app (feitas com Remotion a partir do texto oficial da lei, em 27/11/2026).
+  // "arquivo" = mp4 em public/aulas; não tem id do YouTube.
+  aula_10048: { arquivo: "/aulas/lei-10048.mp4", capa: "/aulas/lei-10048.jpg", titulo: "Lei 10.048 atualizada (com a Lei 14.626/2023)", canal: "Missão Aprovação · aula própria", dur: "2min30" },
+  aula_municipio: { arquivo: "/aulas/municipio-cf.mp4", capa: "/aulas/municipio-cf.jpg", titulo: "O Município na Constituição: arts. 29 e 30", canal: "Missão Aprovação · aula própria", dur: "2min42" },
   m12: { id: "_EmywnyCOM0", titulo: "Toda a Matemática do ENEM em 12 horas", canal: "Pedro Assaad", dur: "12h" },
   fund: { id: "JQfJMJrV5Bk", titulo: "Matemática do Ensino Fundamental (pra quem tem muita dificuldade)", canal: "Pedro Assaad", dur: "11h58" },
   papg: { id: "oDuC3kY7hC8", titulo: "Progressões: PA e PG do zero, para o ENEM e vestibulares", canal: "Videoaula (YouTube)", dur: "aula" },
@@ -153,10 +157,10 @@ export const TRECHOS = {
   "IA generativa": [["inf_ia", "0:00", null, "Inteligência artificial para concursos", 1]],
   "CF: princípios fundamentais (arts. 1º a 4º)": [["cf_princ", "0:00", null, "Arts. 1º ao 4º", 1], ["cf_princ2", "0:00", null, "Aula completa com questões", 2]],
   "CF: direitos e garantias (arts. 5º a 17)": [["cf_dir", "0:00", null, "Arts. 5º ao 17", 1], ["cf_art5", "0:00", null, "Artigo 5º completo", 2]],
-  "CF: organização do Estado (arts. 18, 19, 29, 30)": [["cf_org", "0:00", null, "Arts. 18 e 19", 1]],
+  "CF: organização do Estado (arts. 18, 19, 29, 30)": [["aula_municipio", "0:00", null, "Arts. 29 e 30: o Município", 1], ["cf_org", "0:00", null, "Arts. 18 e 19", 1]],
   "CF: Poder Legislativo (arts. 44 a 75)": [["cf_leg", "0:00", null, "Poder Legislativo", 1]],
   "Acesso à informação (LAI)": [["lai_paiva", "0:00", null, "Lei de Acesso à Informação", 1], ["lai_aula", "0:00", null, "Aula completa da LAI", 2]],
-  "Prioridade de atendimento (Lei 10.048)": [["l10048", "0:00", null, "Resumo da lei", 1]],
+  "Prioridade de atendimento (Lei 10.048)": [["aula_10048", "0:00", null, "A lei atualizada, com as pegadinhas", 1], ["l10048", "0:00", null, "Resumo da lei", 1]],
   "ECA": [["eca_alfa", "0:00", null, "ECA para concursos", 1], ["eca_1", "0:00", null, "ECA com questões", 2]],
   "LINDB (arts. 20 a 30)": [["lindb", "0:00", null, "Arts. 20 ao 30", 1]],
   "LGPD (Cap. IV)": [["lgpd", "0:00", null, "LGPD: conceitos e características", 1]],
@@ -165,3 +169,7 @@ export const TRECHOS = {
 
 // trecho que é o vídeo inteiro: começa do início e não tem fim marcado
 export const inteira = (t) => !!t && t[1] === "0:00" && !t[2];
+// link para abrir fora do app: o mp4 próprio ou o YouTube no minuto certo
+export const linkVideo = (v, ini) => { const x = VIDEOS[v]; if (!x) return "#"; if (x.arquivo) return x.arquivo;
+  const [m, s] = String(ini || "0:00").split(":").map(Number); return `https://www.youtube.com/watch?v=${x.id}&t=${(m || 0) * 60 + (s || 0)}s`; };
+export const proprio = (v) => !!VIDEOS[v]?.arquivo;
