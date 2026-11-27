@@ -83,6 +83,39 @@ export const VIDEOS = {
   cwb_franco: { id: "W9VF0CfHGV4", titulo: "Legislação municipal: Prefeitura de Curitiba 2026", canal: "JUS POLIS · Professor Franco", dur: "aula" },
   cwb_dicas: { id: "lfoevMl9gIQ", titulo: "Dicas sobre a Lei Orgânica de Curitiba", canal: "Felipe Miranda", dur: "aula" },
   cwb_gm: { id: "8XOjqhhWG5o", titulo: "Lei Orgânica de Curitiba (aula 2)", canal: "SevenConcursos", dur: "aula" },
+  // NPOR — História do Brasil (aulas conferidas em 27/11/2026)
+  h_desc: { id: "amV13tcqti8", titulo: "O 'descobrimento' do Brasil — História do Brasil pelo Brasil Ep. 1", canal: "Débora Aladim", dur: "aula" },
+  h_colonia: { id: "n-A8PfScpIE", titulo: "Resumão — Brasil Colônia: invasões, açúcar e União Ibérica", canal: "Não Perca a Cabeça · prof. Heitor", dur: "aula" },
+  h_corte: { id: "RhMJRrj2JsM", titulo: "A vinda da Corte em 1808 — Ep. 8", canal: "Débora Aladim", dur: "aula" },
+  h_indep: { id: "Fr9lurVLNyo", titulo: "Independência do Brasil em 1822 — Ep. 9", canal: "Débora Aladim", dur: "aula" },
+  h_1reinado: { id: "TzwFrYCd-6M", titulo: "Tudo sobre o Primeiro Reinado", canal: "Débora Aladim", dur: "aula" },
+  h_repvelha: { id: "FmGVa7W--mg", titulo: "República Oligárquica (café com leite, coronelismo)", canal: "Débora Aladim", dur: "aula" },
+  h_repvelha2: { id: "8PAMZzDvN1A", titulo: "República Velha para o ENEM", canal: "Parabólica", dur: "aula" },
+  h_vargas: { id: "am2tMD_Vnjc", titulo: "Resumindo a Era Vargas", canal: "Débora Aladim", dur: "aula" },
+  h_feb: { id: "Did_m-sxXi4", titulo: "FEB: a primeira batalha (a FEB na 2ª Guerra)", canal: "Exército Brasileiro", dur: "aula" },
+  h_montecastelo: { id: "7CI8dv5CBm0", titulo: "80 anos da tomada de Monte Castelo pela FEB", canal: "Senado Federal", dur: "aula" },
+  h_ditadura: { id: "IhQuZtxsoOs", titulo: "Ditadura Militar no Brasil 1964-1985 — resumo completo", canal: "História com o Dhé", dur: "aula" },
+  h_ditadura2: { id: "hNX9QCpO748", titulo: "Ditadura militar no Brasil", canal: "Brasil Escola Oficial", dur: "aula" },
+  h_guararapes: { id: "LwGEI5y9GHg", titulo: "As Batalhas dos Guararapes: o berço do Exército Brasileiro", canal: "Primeiros Brasileiros", dur: "aula" },
+  h_caxias: { id: "SGjAOy1x7tE", titulo: "Duque de Caxias — patrono do Exército Brasileiro", canal: "IME", dur: "aula" },
+  h_ingresso: { id: "bB9Ge0YlIT0", titulo: "Como ingressar no Exército Brasileiro — Soldados de Caxias", canal: "TV Brasil", dur: "aula" },
+  // NPOR — Geografia (conferidas em 27/11/2026)
+  g_cartografia: { id: "8dkoplAy278", titulo: "Introdução à Cartografia", canal: "RedShift", dur: "aula" },
+  g_fusos: { id: "ztYnjLEwl34", titulo: "Fusos horários e coordenadas", canal: "Prof Silvester Geografia", dur: "aula" },
+  g_clima: { id: "EShKu2QGIJU", titulo: "Tudo sobre o clima do Brasil", canal: "Jeangrafia", dur: "aula" },
+  g_massas: { id: "AuzULERLm-I", titulo: "Massas de ar do Brasil: aula completa", canal: "Ventifacto · Diego Sperle", dur: "aula" },
+  g_biomas: { id: "ZlB6MZmpKls", titulo: "Biomas e domínios morfoclimáticos", canal: "Prof Silvester Geografia", dur: "aula" },
+  g_dominios: { id: "UGzsVsxOYos", titulo: "Domínios morfoclimáticos e biomas", canal: "Prof. Detto", dur: "aula" },
+  g_populacao: { id: "ij_F79WyMvA", titulo: "Pirâmide etária do Brasil e transição demográfica", canal: "Geo Dica", dur: "aula" },
+  g_demografia: { id: "UaDZjuuzhTE", titulo: "Fases demográficas do Brasil", canal: "Respeita a Geografia · prof. Éder Diego", dur: "aula" },
+  g_regioes: { id: "PGvgdu9-InA", titulo: "As 5 regiões do Brasil (IBGE) — resumo animado", canal: "Desvendando a Geografia", dur: "aula" },
+  g_regioes2: { id: "EcgNZxUVxYg", titulo: "As regiões do Brasil — divisão territorial", canal: "Aqui tem aprendizado", dur: "aula" },
+  // NPOR — Português e redação (conferidas em 27/11/2026)
+  pt_reg: { id: "Ul6rogRczCs", titulo: "Regência verbal e nominal: teoria e questões", canal: "Prof. Álvaro Ferreira", dur: "aula" },
+  pt_interp: { id: "grGNYyFe9lk", titulo: "Dicas para não errar interpretação de textos", canal: "Os Pedagógicos · profª Mariana Noleto", dur: "aula" },
+  pt_interp2: { id: "xyiKtWSoGMY", titulo: "Melhore sua interpretação de texto para o ENEM", canal: "Theo Affini", dur: "aula" },
+  red_diss: { id: "lkDhyZROX5U", titulo: "Como fazer um texto dissertativo-argumentativo do zero", canal: "Redação Online", dur: "aula" },
+  red_imp: { id: "iTKNx1AZQwc", titulo: "Técnica de impessoalização do texto dissertativo", canal: "TV Odette Educação Digital", dur: "aula" },
 };
 // tema → lista de trechos [video, inicio, fim|null, o que mostra, nivel 1=base 2=aprofunda]
 export const TRECHOS = {
@@ -165,6 +198,28 @@ export const TRECHOS = {
   "LINDB (arts. 20 a 30)": [["lindb", "0:00", null, "Arts. 20 ao 30", 1]],
   "LGPD (Cap. IV)": [["lgpd", "0:00", null, "LGPD: conceitos e características", 1]],
   "Leis de Curitiba": [["cwb_franco", "0:00", null, "Legislação municipal para a Prefeitura de Curitiba", 1], ["cwb_dicas", "0:00", null, "Dicas da Lei Orgânica de Curitiba", 2], ["cwb_gm", "0:00", null, "Lei Orgânica de Curitiba", 2]],
+  // NPOR — Português
+  "Sintaxe e regência": [["pt_reg", "0:00", null, "Regência verbal e nominal", 1], ["pt_conc", "0:00", null, "Concordância verbal", 2]],
+  "Crase e pontuação": [["pt_crase", "0:00", null, "As 6 regras de crase", 1], ["pt_pont", "0:00", null, "Pontuação: aulão completo", 2]],
+  "Semântica e interpretação": [["pt_interp", "0:00", null, "Não errar interpretação de texto", 1], ["pt_interp2", "0:00", null, "Interpretação para o ENEM", 1], ["pt_fig", "0:00", null, "Figuras de linguagem", 2]],
+  "Literatura: Quinhentismo ao Arcadismo": [["lit_noslen", "0:00", null, "Linha do tempo das escolas literárias", 1], ["lit_resumo", "0:00", null, "Resumo das escolas (Quinhentismo ao Arcadismo)", 2]],
+  "Literatura: Romantismo ao Simbolismo": [["lit_noslen", "0:00", null, "Linha do tempo das escolas literárias", 1], ["lit_resumo", "0:00", null, "Resumo das escolas (Romantismo ao Simbolismo)", 2]],
+  // NPOR — História do Brasil
+  "Colônia": [["h_desc", "0:00", null, "Descobrimento e período pré-colonial", 1], ["h_colonia", "0:00", null, "Colônia: açúcar, ouro e invasões", 1], ["h_guararapes", "0:00", null, "Guararapes: berço do Exército", 2]],
+  "Independência e Império": [["h_corte", "0:00", null, "A vinda da Corte em 1808", 1], ["h_indep", "0:00", null, "A Independência de 1822", 1], ["h_1reinado", "0:00", null, "Primeiro Reinado", 2]],
+  "República Velha": [["h_repvelha", "0:00", null, "República Oligárquica (café com leite)", 1], ["h_repvelha2", "0:00", null, "República Velha para o ENEM", 2]],
+  "Era Vargas e FEB": [["h_vargas", "0:00", null, "Resumo da Era Vargas", 1], ["h_feb", "0:00", null, "A FEB na 2ª Guerra", 2], ["h_montecastelo", "0:00", null, "A tomada de Monte Castelo", 2]],
+  "Brasil de 1946 aos dias de hoje": [["h_ditadura", "0:00", null, "Ditadura militar 1964-1985", 1], ["h_ditadura2", "0:00", null, "Ditadura militar (resumo)", 2]],
+  "Exército Brasileiro": [["h_guararapes", "0:00", null, "Guararapes: criação do Exército", 1], ["h_caxias", "0:00", null, "Duque de Caxias, o patrono", 2], ["h_ingresso", "0:00", null, "Como ingressar no Exército", 2]],
+  // NPOR — Geografia
+  "Cartografia": [["g_cartografia", "0:00", null, "Introdução à cartografia", 1], ["g_fusos", "0:00", null, "Fusos horários e coordenadas", 2]],
+  "Clima e relevo do Brasil": [["g_clima", "0:00", null, "O clima do Brasil", 1], ["g_massas", "0:00", null, "Massas de ar do Brasil", 2]],
+  "Biomas e domínios": [["g_biomas", "0:00", null, "Biomas e domínios morfoclimáticos", 1], ["g_dominios", "0:00", null, "Domínios morfoclimáticos e biomas", 2]],
+  "População e economia": [["g_populacao", "0:00", null, "Pirâmide etária e transição demográfica", 1], ["g_demografia", "0:00", null, "Fases demográficas do Brasil", 2]],
+  "Território e regiões": [["g_regioes", "0:00", null, "As 5 regiões do IBGE", 1], ["g_regioes2", "0:00", null, "Divisão territorial do Brasil", 2]],
+  // NPOR — Redação e entrevista
+  "Redação dissertativa": [["red_diss", "0:00", null, "Texto dissertativo-argumentativo do zero", 1], ["red_imp", "0:00", null, "Impessoalidade na redação", 2]],
+  "Entrevista": [["h_ingresso", "0:00", null, "Como ingressar no Exército (contexto)", 1], ["h_caxias", "0:00", null, "Valores e história: Caxias", 2]],
 };
 
 // trecho que é o vídeo inteiro: começa do início e não tem fim marcado
