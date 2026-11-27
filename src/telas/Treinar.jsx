@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Zap, RotateCcw, Target, Layers, Repeat, Moon, Volume2, Timer, Headphones, NotebookPen, ClipboardList, Calculator } from "lucide-react";
+import { Zap, RotateCcw, Target, Layers, Repeat, Moon, Volume2, Timer, Headphones, NotebookPen, ClipboardList, Calculator, Sparkles } from "lucide-react";
 import { useNucleo } from "@/estado.js";
 import { cn } from "@/lib-utils";
 import { Button } from "@/components/ui/button.jsx";
@@ -79,8 +79,9 @@ function Revisar({ o }) {
   const n = useNucleo(); const rv = n.revisoesVencidas(o), cv = n.cardsVencidos(o);
   const prox = Object.values(n.P().rev).filter((r) => r.due > n.hoje()).length;
   return (<>
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <Atalho destaque Ic={Timer} titulo="Modo 5 minutos" desc="6 questões: o que venceu na revisão e seus temas fracos" onClick={n.iniciarCinco} />
+      <Atalho Ic={Sparkles} titulo="Siglas & macetes" desc="Painel lateral: LIMPE, PODC e as suas siglas, mais o que você errou" onClick={() => n.ui.abrirRevisao("siglas")} />
       <Atalho Ic={Headphones} titulo="Ouvir" desc="Resumos e lei seca em voz alta, no ônibus" onClick={() => n.ui.ir("ouvir")} />
       <Atalho Ic={NotebookPen} titulo="Caderno" desc="Anotações e marca-texto por tema" onClick={() => n.ui.ir("caderno")} />
     </div>
