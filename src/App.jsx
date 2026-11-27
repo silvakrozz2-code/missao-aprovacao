@@ -15,6 +15,7 @@ import Lab from "./telas/Lab.jsx";
 import Modos from "./telas/Modos.jsx";
 import Contas from "./telas/Contas.jsx";
 import Tutor from "./telas/Tutor.jsx";
+import PainelRevisao from "./telas/PainelRevisao.jsx";
 
 const ROTAS = ["painel", "trilha", "treinar", "revisar", "mais", "aprender", "questao", "resultado", "cards", "ouvir", "caderno", "desafios", "lab", "modos", "contas", "tutor"];
 const NAV = [["painel", "Painel", House], ["trilha", "Trilha", Route], ["treinar", "Treinar", PencilLine], ["revisar", "Revisar", Layers], ["mais", "Mais", Ellipsis]];
@@ -118,6 +119,7 @@ export default function App() {
         </nav>)}
       <Toast />
       <Rascunho />
+      <PainelRevisao oculto={prova} />
     </div>
   );
 }

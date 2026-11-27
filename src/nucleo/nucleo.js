@@ -13,9 +13,10 @@ import { npor } from "./dados-npor.js";
 import { enem } from "./dados-enem.js";
 import { resumosFaltantes } from "./resumos-faltantes.js";
 import { fala, ehServidor, vozAtual, lerTexto, pararLeitura } from "./vozes.js";
+import { siglas as SIGLAS_FONTE } from "./siglas.js";
 
 /* ───────────────────────── ponte com a interface */
-export const ui = { ir: () => {}, toast: () => {}, limparRascunho: () => {}, rolarExplicacao: () => {}, topo: () => {} };
+export const ui = { ir: () => {}, toast: () => {}, limparRascunho: () => {}, rolarExplicacao: () => {}, topo: () => {}, abrirRevisao: () => {} };
 let versao = 0; const ouvintes = new Set();
 export const subscribe = (fn) => { ouvintes.add(fn); return () => ouvintes.delete(fn); };
 export const getVersao = () => versao;
@@ -562,6 +563,33 @@ function errosDoTema(o, tema, k = 4) {
     .map(([id, r]) => ({ id, q: Q(id), e: r.e, a: r.a, esc: p.errEsc?.[id], porque: p.porque[id] }));
 }
 
+/* ───────────────────────── painel de revisão rápida: siglas/macetes e seus erros */
+function siglasDoObj(o) {
+  return (SIGLAS_FONTE[o] || []).map((s, i) => ({ ...s, id: `sig:${o}:${i}` }));
+}
+// Vira o que a pessoa errou (gabarito marcado errado ou motivo anotado no "Por que eu errei?") em cartões de revisão.
+function cartoesErro(o, k = 40) {
+  const p = S.p[o]; if (!p) return [];
+  const ids = new Set([
+    ...Object.keys(p.errEsc || {}),
+    ...Object.keys(p.porque || {}).filter((id) => (p.porque[id] || "").trim()),
+  ]);
+  const lista = [];
+  for (const id of ids) {
+    const q = Q(id); if (!q) continue;
+    const r = p.resp[id] || {};
+    const esc = p.errEsc?.[id];
+    lista.push({
+      id, tema: q.tema, enunciado: q.enunciado,
+      correta: q.alternativas[q.correta], explicacao: q.explicacao,
+      marcou: (esc != null && esc !== q.correta) ? q.alternativas[esc] : null,
+      porque: (p.porque?.[id] || "").trim() || null,
+      e: r.e || 1, last: r.last || 0,
+    });
+  }
+  return lista.sort((a, b) => b.e - a.e || b.last - a.last).slice(0, k);
+}
+
 /* ───────────────────────── marca-texto */
 function marcasTexto(tema) { return (P().marcaTexto ||= {})[tema] || []; }
 function marcarTexto(tema, i, txt) { txt = txt.trim(); if (txt.length < 2) return; const m = ((P().marcaTexto ||= {})[tema] ||= []); if (!m.some((x) => x.i === i && x.txt === txt)) m.push({ i, txt }); salvar(); render(); }
@@ -616,7 +644,7 @@ export {
   questoesDoTema, questoesFiltro, revisoesVencidas, cardsVencidos, simulado, Q, iniciar, responder, registrar, marcar, proxima, finalizar,
   iniciarCards, avaliarCard, pesoObjetivo, planoDoDia, TONS, frase, respostaTutor, MEDALHAS, checarMedalhas, totalQ,
   iniciarPomo, restante, terminarPomo, mmss, ligarTick, falar,
-  irPara, responderEm, iniciarCinco, errosDoTema, marcasTexto, marcarTexto, desmarcarTexto, inicioSemana, statsSemana, desafiosDaSemana, rankingSemanas,
+  irPara, responderEm, iniciarCinco, errosDoTema, siglasDoObj, cartoesErro, marcasTexto, marcarTexto, desmarcarTexto, inicioSemana, statsSemana, desafiosDaSemana, rankingSemanas,
   registrarModo,
   ETAPA_IC, ETAPAS, segs, ytLink, durTxt, proximaFase, abrirAprender, entrarEtapa, novoExemplo, acaoAprender,
 };

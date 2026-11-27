@@ -77,8 +77,9 @@ export function Questao() {
 function Porque({ id }) {
   const n = useNucleo(); const [v, setV] = useState(() => n.P().porque[id] || "");
   return (
-    <label className="flex flex-col gap-1.5 text-sm font-bold">Por que eu errei? (vai para o caderno de erros)
-      <textarea value={v} onChange={(e) => { setV(e.target.value); n.P().porque[id] = e.target.value; n.salvar(); }} placeholder="Ex.: confundi prazo da LAI com o da ouvidoria" className="mao min-h-20 rounded-xl border border-risco-2 bg-lousa p-3 text-lg font-normal" /></label>
+    <label className="flex flex-col gap-1.5 text-sm font-bold">Por que eu errei? (vai para o caderno de erros e para a revisão rápida)
+      <textarea value={v} onChange={(e) => { setV(e.target.value); n.P().porque[id] = e.target.value; n.salvar(); }} placeholder="Ex.: confundi prazo da LAI com o da ouvidoria" className="mao min-h-20 rounded-xl border border-risco-2 bg-lousa p-3 text-lg font-normal" />
+      <button type="button" onClick={() => n.ui.abrirRevisao("erros")} className="self-start text-sm font-bold text-acc underline underline-offset-4">Abrir revisão dos meus erros →</button></label>
   );
 }
 
